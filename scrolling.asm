@@ -1,5 +1,5 @@
 
-ScrollForeground:{
+ScrollForeground: {
 		lda Direction
 		bpl !Forward+
 
@@ -20,7 +20,6 @@ ScrollForeground:{
 	!NoShift:
 		rts
 
-
 	!Forward:
 		//Increment map-position
 		lda MapPositionBottom + 0
@@ -37,7 +36,6 @@ ScrollForeground:{
 	!NoShift:
 		rts
 }
-
 
 ScrollLandscape: {
 		lda Direction

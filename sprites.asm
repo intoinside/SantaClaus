@@ -1,6 +1,5 @@
 
-
-SetupSprites:{
+SetupSprites: {
 		lda #$10
 		sta SCREEN_RAM + $03f8 + $00
 		sta SCREEN_RAM + $03f8 + $01
@@ -22,9 +21,9 @@ SetupSprites:{
 		sta $d02e			// Sprite #7 color
 
 		lda #$00
-		sta $d015			// Sprite enable register
+		sta VIC.SPRITE_ENABLE
 		lda #$00
-		sta $d01c			// Sprite multicolor mode register
+		sta VIC.SPRITE_MULTICOLOR
 
 		rts
 }

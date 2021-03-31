@@ -2,6 +2,7 @@
 
 BasicUpstart2(Entry)
 
+#import "label.asm"
 #import "scrolling.asm"
 #import "sprites.asm"
 #import "screen.asm"
@@ -16,35 +17,35 @@ Entry:
 		sta $01
 
 		lda #%10			//Select vic bank
-		sta $dd00
+		sta VIC.BANK
 
 		lda #%00000010
-		sta $d018			// Memory setup register
+		sta VIC.MEMORY_CONTROL			// Memory setup register
 
-		lda $d016			// Screen control register #2
+		lda VIC.SCREEN_CONTROL2			// Screen control register #2
 		and #%11110111
 		ora #%00010111
-		sta $d016			// Screen control register #2
+		sta VIC.SCREEN_CONTROL2			// Screen control register #2
 
 		lda #$06
-		sta $d020			// Border color
+		sta VIC.BORDER_COLOR			// Border color
 		lda #$06
-		sta $d021			// Background color
+		sta VIC.BACKGROUND_COLOR		// Background color
 
 		lda #$00
-		sta $d022  			// Extra background color #1
+		sta VIC.EXTRA_BACKGROUND1		// Extra background color #1
 		lda #$01
-		sta $d023			// Extra background color #2
+		sta VIC.EXTRA_BACKGROUND2		// Extra background color #2
 
 		lda #<Split01
-		sta $fffe
+		sta MEMORY.INT_SERVICE_LOW
 		lda #>Split01
-		sta $ffff
+		sta MEMORY.INT_SERVICE_HIGH
 		lda #$ff
 		sta $d012 			// Raster line
-		lda $d011			// Screen control register #1
+		lda VIC.SCREEN_CONTROL1			// Screen control register #1
 		and #$7f
-		sta $d011			// Screen control register #1
+		sta VIC.SCREEN_CONTROL1			// Screen control register #1
 
 		lda #$01
 		sta $d01a
@@ -202,27 +203,27 @@ Split01: {
 		stx ModX + 1
 		sty ModY + 1
 
-//			lda #$00
-//			sta $d021 			// Background color
+//		lda #$00
+//		sta VIC.BACKGROUND_COLOR 			// BACKGROUND COLOR
 
 		//Remove borders
-		lda $d011			// Screen control register #1
+		lda VIC.SCREEN_CONTROL1			// Screen control register #1
 		and #%11110111
-		sta $d011			// Screen control register #1
+		sta VIC.SCREEN_CONTROL1			// Screen control register #1
 
 		lda #$ff
-		lda $d011			// Screen control register #1
+		lda VIC.SCREEN_CONTROL1			// Screen control register #1
 		bpl *-3
 
-		lda $d011			// Screen control register #1
+		lda VIC.SCREEN_CONTROL1			// Screen control register #1
 		ora #%00001000
-		sta $d011			// Screen control register #1
+		sta VIC.SCREEN_CONTROL1			// Screen control register #1
 
 		inc FrameFlag
 
 		//STATIC SECTION
 		lda #%0010000
-		sta $d016			// Screen control register #2
+		sta VIC.SCREEN_CONTROL2			// Screen control register #2
 
 		//Do sprites
 		clc
@@ -253,14 +254,14 @@ Split01: {
 		stx $d010
 
 		lda #<Split01a
-		sta $fffe
+		sta MEMORY.INT_SERVICE_LOW
 		lda #>Split01a
-		sta $ffff
+		sta MEMORY.INT_SERVICE_HIGH
 		lda #$00
 		sta $d012 			// Raster line
-		lda $d011			// Screen control register #1
+		lda VIC.SCREEN_CONTROL1			// Screen control register #1
 		and #$7f
-		sta $d011			// Screen control register #1
+		sta VIC.SCREEN_CONTROL1			// Screen control register #1
 
 	ModA:
 		lda #$00
@@ -270,7 +271,6 @@ Split01: {
 		ldy #$00
 		asl $d019
 		rti
-
 }
 
 Split01a: {
@@ -279,8 +279,8 @@ Split01a: {
 		stx ModX + 1
 		sty ModY + 1
 
-//		lda #$06
-//		sta $d021
+//		lda #$00
+//		sta VIC.BACKGROUND_COLOR
 //		lda #$00
 //		sta $d022
 //		lda #$01
@@ -288,13 +288,13 @@ Split01a: {
 
 		//landscape
 		lda #%0010000
-		sta $d016				// Screen control register #2
+		sta VIC.SCREEN_CONTROL2				// Screen control register #2
 
 
 		lda #<Split02
-		sta $fffe
+		sta MEMORY.INT_SERVICE_LOW
 		lda #>Split02
-		sta $ffff
+		sta MEMORY.INT_SERVICE_HIGH
 		lda #$4a
 		sta $d012				// Raster line
 	ModA:
@@ -309,7 +309,6 @@ Split01a: {
 }
 
 Split02: {
-
 		sta ModA + 1
 		stx ModX + 1
 		sty ModY + 1
@@ -318,12 +317,12 @@ Split02: {
 
 		lda MapPositionLandscape + 0
 		ora #%00010000
-		sta $d016
+		sta VIC.SCREEN_CONTROL2
 
 		lda #<Split03
-		sta $fffe
+		sta MEMORY.INT_SERVICE_LOW
 		lda #>Split03
-		sta $ffff
+		sta MEMORY.INT_SERVICE_HIGH
 		lda #$81
 		sta $d012	
 	ModA:
@@ -334,11 +333,9 @@ Split02: {
 		ldy #$00
 		asl $d019				// Interrupt status register
 		rti
-
 }
 
 Split03: {
-
 		sta ModA + 1
 		stx ModX + 1
 		sty ModY + 1
@@ -360,12 +357,12 @@ Split03: {
 
 		lda MapPositionBottom + 0
 		ora #%00010000
-		sta $d016
+		sta VIC.SCREEN_CONTROL2
 
 		lda #<Split03aa
-		sta $fffe
+		sta MEMORY.INT_SERVICE_LOW
 		lda #>Split03aa
-		sta $ffff
+		sta MEMORY.INT_SERVICE_HIGH
 		lda #$a6
 		sta $d012
 
@@ -399,9 +396,9 @@ Split03aa: {
 
 
 		lda #<Split03a
-		sta $fffe
+		sta MEMORY.INT_SERVICE_LOW
 		lda #>Split03a
-		sta $ffff
+		sta MEMORY.INT_SERVICE_HIGH
 		lda #$d1
 		sta $d012	
 
@@ -441,14 +438,14 @@ Split03a: {
 		nop
 
 		lda #$00
-		sta $d022
+		sta VIC.EXTRA_BACKGROUND1
 		lda #$01
-		sta $d023
+		sta VIC.EXTRA_BACKGROUND2
 
 		lda #<Split01
-		sta $fffe
+		sta MEMORY.INT_SERVICE_LOW
 		lda #>Split01
-		sta $ffff
+		sta MEMORY.INT_SERVICE_HIGH
 		lda #$fa
 		sta $d012
 
@@ -481,7 +478,6 @@ ShiftMap: {
 			tay
 			lda COLOR_MAP, y
 			sta $d800 + $28 * i + $26
-
 		}
 		rts
 }
@@ -524,7 +520,7 @@ COLOR_MAP:
 	.import binary "./assets/cols.bin"
 
 //VIC BANK
-//$c000-$ffff
+//$c000-MEMORY.INT_SERVICE_HIGH
 //screen at $c000
 //char set at $c800
 .label SCREEN_RAM = $4000

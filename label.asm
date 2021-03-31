@@ -1,17 +1,25 @@
 
-PROC_PORT               = $0001
+VIC: {
+	.label PROC_PORT			= $0001
 
-SCREEN_RAM              = $0400
-COLOR_RAM               = $d800
+	.label SCREEN_RAM			= $0400
+	.label COLOR_RAM			= $d800
 
-VIC_SPRITE_ENABLE       = $d015
-VIC_SCREEN_CONTROL      = $d016
-VIC_BANK                = $dd00                                       
-VIC_MEMORY_CONTROL      = $d018
+	.label SPRITE_ENABLE		= $d015
+	.label SCREEN_CONTROL1		= $d011
+	.label SCREEN_CONTROL2		= $d016
+	.label BANK					= $dd00
+	.label MEMORY_CONTROL		= $d018
 
-BORDER_COLOR            = $d020
-BACKGROUND_COLOR        = $d021
+	.label BORDER_COLOR			= $d020
+	.label BACKGROUND_COLOR		= $d021
 
-EXTRA_BACKGROUND1       = $d022
-EXTRA_BACKGROUND2       = $d023
-EXTRA_BACKGROUND3       = $d024
+	.label EXTRA_BACKGROUND1	= $d022
+	.label EXTRA_BACKGROUND2	= $d023
+	.label EXTRA_BACKGROUND3	= $d024
+}
+
+MEMORY: {
+	.label INT_SERVICE_LOW		= $fffe
+	.label INT_SERVICE_HIGH		= $ffff
+}
