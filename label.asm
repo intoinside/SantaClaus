@@ -6,6 +6,10 @@ VIC: {
 	.label COLOR_RAM			= $d800
 
 	.label SPRITE_ENABLE		= $d015
+	.label SPRITE_MULTICOLOR	= $d01c
+	.label SPRITE_EXTRACOLOR1	= $d025
+	.label SPRITE_EXTRACOLOR2	= $d026
+	
 	.label SCREEN_CONTROL1		= $d011
 	.label SCREEN_CONTROL2		= $d016
 	.label BANK					= $dd00

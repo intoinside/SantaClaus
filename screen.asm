@@ -1,4 +1,16 @@
 
+InitScreen: {
+		lda #$06
+		sta VIC.BORDER_COLOR			// Border color
+		lda #$06
+		sta VIC.BACKGROUND_COLOR		// Background color
+
+		lda #$00
+		sta VIC.EXTRA_BACKGROUND1		// Extra background color #1
+		lda #$01
+		sta VIC.EXTRA_BACKGROUND2		// Extra background color #2
+}
+
 ClearScreen: {
 		ldx #$00
 	!:

@@ -1,29 +1,48 @@
 
 SetupSprites: {
-		lda #$10
+		lda #$2c
 		sta SCREEN_RAM + $03f8 + $00
+		lda #$2d
 		sta SCREEN_RAM + $03f8 + $01
 		sta SCREEN_RAM + $03f8 + $02
 		sta SCREEN_RAM + $03f8 + $03
 		sta SCREEN_RAM + $03f8 + $04
-		sta SCREEN_RAM + $03f8 + $05
-		sta SCREEN_RAM + $03f8 + $06
-		sta SCREEN_RAM + $03f8 + $07
 
-		lda #$00
+		lda #%00011111
+		sta VIC.SPRITE_MULTICOLOR
+
+		lda #$02
 		sta $d027			// Sprite #0 color
-		sta $d028
+//		lda #$02
+		sta $d028			// Sprite #1 color
 		sta $d029
 		sta $d02a
 		sta $d02b
-		sta $d02c
-		sta $d02d
-		sta $d02e			// Sprite #7 color
 
 		lda #$00
+		sta VIC.SPRITE_EXTRACOLOR1
+		lda #$08
+		sta VIC.SPRITE_EXTRACOLOR2
+
+		lda #%00011111
 		sta VIC.SPRITE_ENABLE
-		lda #$00
-		sta VIC.SPRITE_MULTICOLOR
 
+		lda #$80
+		sta $d001
+		sta $d003
+		sta $d005
+		sta $d007
+		sta $d009
+
+		lda #$30
+		sta $d000
+		lda #$48
+		sta $d002
+		lda #$5a
+		sta $d004
+		lda #$6c
+		sta $d006
+		lda #$7e
+		sta $d008
 		rts
 }
