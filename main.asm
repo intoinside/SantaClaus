@@ -80,6 +80,7 @@ Entry:
 		jsr ScrollLandscape
 		jsr ScrollForeground
 	!NoMove:
+		jsr MoveSleigh
 		jsr ScrollChars
 
 		jmp !Loop-
@@ -506,7 +507,7 @@ ShiftMapLandscapeBack: {
 }
 
 //Map data
-* =$8000
+* = $8000 "Map"
 CHAR_MAP:
 	.import binary "./assets/map.bin"
 COLOR_MAP:
@@ -519,7 +520,7 @@ COLOR_MAP:
 .label SCREEN_RAM = $4000
 * = $4800 "Charset"
 	.import binary "./assets/chars.bin"
-* = $4b00 "sprites"
+* = $4b00 "Sprites"
 	.import binary "./assets/sprites.bin"
 
 * = $7fff
