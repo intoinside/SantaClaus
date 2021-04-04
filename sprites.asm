@@ -1,5 +1,5 @@
 
-SleighFrame:
+ReindeerFrame:
 	.byte $00
 
 SetupSprites: {
@@ -76,6 +76,8 @@ SetupSprites: {
 }
 
 MoveSleigh: {
+		jsr SwitchReindeerFrame
+
 		lda VIC.SPRITE_0_X			// Moving sleigh and elf
 		clc
 		adc #$01
@@ -174,4 +176,30 @@ MoveSleigh: {
 		sta VIC.SPRITE_EXTRAX
 	!ReloadXReindeer4:
 		jmp LastReindeerDone
+}
+
+SwitchReindeerFrame: {
+		lda ReindeerFrame
+		clc
+		lsr
+		lsr
+		lsr
+		bcs CheckReindeerFrame
+		adc #$2e
+		sta SCREEN_RAM + $03f8 + $02
+		sta SCREEN_RAM + $03f8 + $03
+		sta SCREEN_RAM + $03f8 + $04
+		sta SCREEN_RAM + $03f8 + $05
+
+	CheckReindeerFrame:
+		lda ReindeerFrame
+		cmp #$1f
+		beq ResetFrameReindeer
+		inc ReindeerFrame
+		jmp SwitchReindeerFrameDone
+	ResetFrameReindeer:
+		lda #$00
+		sta ReindeerFrame
+	SwitchReindeerFrameDone:
+		rts
 }
