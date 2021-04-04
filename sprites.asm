@@ -43,135 +43,135 @@ SetupSprites: {
 		sta VIC.SPRITE_ENABLE
 
 // Y Positioning 
-		lda #$80
-		sta $d001
-		sta $d003
-		sta $d005
-		sta $d007
-		sta $d009
-		sta $d00b
+		lda #$80			// Sleigh, elf and reindeer Y position
+		sta VIC.SPRITE_0_Y
+		sta VIC.SPRITE_1_Y
+		sta VIC.SPRITE_2_Y
+		sta VIC.SPRITE_3_Y
+		sta VIC.SPRITE_4_Y
+		sta VIC.SPRITE_5_Y
 
-		lda #$dc
-		sta $d00d
-		sta $d00f
+		lda #$dc			// Santa and santa shadow Y position
+		sta VIC.SPRITE_6_Y
+		sta VIC.SPRITE_7_Y
 
 // X Positioning 
-		lda #$30
-		sta $d000
-		sta $d002
-		lda #$48
-		sta $d004
-		lda #$5a
-		sta $d006
-		lda #$6c
-		sta $d008
-		lda #$7e
-		sta $d00a
+		lda #$30			// Sleigh, elf X position
+		sta VIC.SPRITE_0_X
+		sta VIC.SPRITE_1_X
+		lda #$48			// Reindeer 1 X position
+		sta VIC.SPRITE_2_X
+		lda #$5a			// Reindeer 2 X position
+		sta VIC.SPRITE_3_X
+		lda #$6c			// Reindeer 3 X position
+		sta VIC.SPRITE_4_X
+		lda #$7e			// Reindeer 4 X position
+		sta VIC.SPRITE_5_X
 
-		lda #$90
-		sta $d00c
-		sta $d00e
+		lda #$90			// Santa and santa shadow X position
+		sta VIC.SPRITE_6_X
+		sta VIC.SPRITE_7_X
 
 		rts
 }
 
 MoveSleigh: {
-		lda $d000
+		lda VIC.SPRITE_0_X			// Moving sleigh and elf
 		clc
 		adc #$01
-		sta $d000
-		sta $d002
-		bcs ToggleExtraXSleigh
+		sta VIC.SPRITE_0_X
+		sta VIC.SPRITE_1_X
+		bcs ToggleExtraXSleigh	// Check if sleigh goes over 255px
 
 	EvaluateReindeer:
-		lda $d004
+		lda VIC.SPRITE_2_X			// Moving reindeer 1
 		clc
 		adc #$01
-		sta $d004
+		sta VIC.SPRITE_2_X
 		bcs ToggleExtraXReindeer1
 	Reindeer2:
-		lda $d006
+		lda VIC.SPRITE_3_X			// Moving reindeer 2
 		clc
 		adc #$01
-		sta $d006
+		sta VIC.SPRITE_3_X
 		bcs ToggleExtraXReindeer2
 	Reindeer3:
-		lda $d008
+		lda VIC.SPRITE_4_X			// Moving reindeer 3
 		clc
 		adc #$01
-		sta $d008
+		sta VIC.SPRITE_4_X
 		bcs ToggleExtraXReindeer3
 	Reindeer4:
-		lda $d00a
+		lda VIC.SPRITE_5_X			// Moving reindeer 4
 		clc
 		adc #$01
-		sta $d00a
+		sta VIC.SPRITE_5_X
 		bcs ToggleExtraXReindeer4
 	LastReindeerDone:
 		rts
 
 	ToggleExtraXSleigh:
-		lda $d010
+		lda VIC.SPRITE_EXTRAX 			// Setting or resetting sleigh and elf extra x position
 		cmp #%00100000
 		bcs SetExtraXSleigh
 		and #%11111100
-		sta $d010
+		sta VIC.SPRITE_EXTRAX
 		jmp !ReloadXSleighAndElf+
 	SetExtraXSleigh:
 		ora #%00000011
-		sta $d010
+		sta VIC.SPRITE_EXTRAX
 	!ReloadXSleighAndElf:
 		jmp EvaluateReindeer
 
 	ToggleExtraXReindeer1:
-		lda $d010
+		lda VIC.SPRITE_EXTRAX 			// Setting or resetting reindeer 1 extra x position
 		cmp #%00100000
 		bcs SetExtraXReindeer1
 		and #%11111011
-		sta $d010
+		sta VIC.SPRITE_EXTRAX
 		jmp !ReloadXReindeer1+
 	SetExtraXReindeer1:
 		ora #%00000100
-		sta $d010
+		sta VIC.SPRITE_EXTRAX
 	!ReloadXReindeer1:
 		jmp Reindeer2
 
 	ToggleExtraXReindeer2:
-		lda $d010
+		lda VIC.SPRITE_EXTRAX 			// Setting or resetting reindeer 2 extra x position
 		cmp #%00100000
 		bcs SetExtraXReindeer2
 		and #%11110111
-		sta $d010
+		sta VIC.SPRITE_EXTRAX
 		jmp !ReloadXReindeer2+
 	SetExtraXReindeer2:
 		ora #%00001000
-		sta $d010
+		sta VIC.SPRITE_EXTRAX
 	!ReloadXReindeer2:
 		jmp Reindeer3
 
 	ToggleExtraXReindeer3:
-		lda $d010
+		lda VIC.SPRITE_EXTRAX 			// Setting or resetting reindeer 3 extra x position
 		cmp #%00100000
 		bcs SetExtraXReindeer3
 		and #%11101111
-		sta $d010
+		sta VIC.SPRITE_EXTRAX
 		jmp !ReloadXReindeer3+
 	SetExtraXReindeer3:
 		ora #%00010000
-		sta $d010
+		sta VIC.SPRITE_EXTRAX
 	!ReloadXReindeer3:
 		jmp Reindeer4
 
 	ToggleExtraXReindeer4:
-		lda $d010
+		lda VIC.SPRITE_EXTRAX 			// Setting or resetting reindeer 4 extra x position
 		cmp #%00100000
 		bcc SetExtraXReindeer4
 		and #%11011111
-		sta $d010
+		sta VIC.SPRITE_EXTRAX
 		jmp !ReloadXReindeer4+
 	SetExtraXReindeer4:
 		ora #%00100000
-		sta $d010
+		sta VIC.SPRITE_EXTRAX
 	!ReloadXReindeer4:
 		jmp LastReindeerDone
 }

@@ -24,7 +24,6 @@ ClearScreen: {
 }
 
 DrawMapFull2: {
-
 		lda #>SCREEN_RAM
 		sta ScrMod + 2
 		lda #$d8

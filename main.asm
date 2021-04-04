@@ -16,16 +16,16 @@ Entry:
 		lda #$35
 		sta $01
 
-		lda #%10			//Select vic bank
+		lda #%10					// Select vic bank
 		sta VIC.BANK
 
 		lda #%00000010
-		sta VIC.MEMORY_CONTROL			// Memory setup register
+		sta VIC.MEMORY_CONTROL		// Memory setup register
 
-		lda VIC.SCREEN_CONTROL2			// Screen control register #2
+		lda VIC.SCREEN_CONTROL2		// Screen control register #2
 		and #%11110111
 		ora #%00010111
-		sta VIC.SCREEN_CONTROL2			// Screen control register #2
+		sta VIC.SCREEN_CONTROL2		// Screen control register #2
 
 		jsr InitScreen
 
@@ -34,15 +34,15 @@ Entry:
 		lda #>Split01
 		sta MEMORY.INT_SERVICE_HIGH
 		lda #$ff
-		sta $d012 			// Raster line
-		lda VIC.SCREEN_CONTROL1			// Screen control register #1
+		sta VIC.RASTER_LINE 					// Raster line
+		lda VIC.SCREEN_CONTROL1		// Screen control register #1
 		and #$7f
-		sta VIC.SCREEN_CONTROL1			// Screen control register #1
+		sta VIC.SCREEN_CONTROL1		// Screen control register #1
 
 		lda #$01
 		sta $d01a
 
-		asl $d019			// Interrupt status register
+		asl $d019					// Interrupt status register
 
 		jsr SetupSprites
 
@@ -223,7 +223,7 @@ Split01: {
 		lda #$00
 		ldy #$00
 	!:
-		sta $d001, y
+		sta VIC.SPRITE_0_Y, y
 		adc #$15
 		iny
 		iny
@@ -233,7 +233,7 @@ Split01: {
 		lda SpritePositions + 0
 		ldy #$00
 	!:
-		sta $d000, y
+		sta VIC.SPRITE_0_X, y
 		iny
 		iny
 		cpy #$10
@@ -244,7 +244,7 @@ Split01: {
 		beq !+
 		ldx #$ff
 	!:
-		stx $d010
+		stx VIC.SPRITE_EXTRAX
 */
 
 		lda #<Split01a
@@ -252,7 +252,7 @@ Split01: {
 		lda #>Split01a
 		sta MEMORY.INT_SERVICE_HIGH
 		lda #$00
-		sta $d012 			// Raster line
+		sta VIC.RASTER_LINE 						// Raster line
 		lda VIC.SCREEN_CONTROL1			// Screen control register #1
 		and #$7f
 		sta VIC.SCREEN_CONTROL1			// Screen control register #1
@@ -289,7 +289,7 @@ Split01a: {
 		lda #>Split02
 		sta MEMORY.INT_SERVICE_HIGH
 		lda #$4a
-		sta $d012				// Raster line
+		sta VIC.RASTER_LINE				// Raster line
 	ModA:
 		lda #$00
 	ModX:
@@ -317,7 +317,7 @@ Split02: {
 		lda #>Split03
 		sta MEMORY.INT_SERVICE_HIGH
 		lda #$81
-		sta $d012	
+		sta VIC.RASTER_LINE	
 	ModA:
 		lda #$00
 	ModX:
@@ -357,7 +357,7 @@ Split03: {
 		lda #>Split03aa
 		sta MEMORY.INT_SERVICE_HIGH
 		lda #$a6
-		sta $d012
+		sta VIC.RASTER_LINE
 
 	ModA:
 		lda #$00
@@ -381,7 +381,7 @@ Split03aa: {
 		lda #$a8
 		ldy #$00
 	!:
-		sta $d001, y
+		sta VIC.SPRITE_0_Y, y
 		adc #$15
 		iny
 		iny
@@ -394,7 +394,7 @@ Split03aa: {
 		lda #>Split03a
 		sta MEMORY.INT_SERVICE_HIGH
 		lda #$d1
-		sta $d012	
+		sta VIC.RASTER_LINE	
 
 	ModA:
 		lda #$00
@@ -414,8 +414,8 @@ Split03a: {
 		sty ModY + 1
 
 		//Foreground
-		lda $d012
-		cmp $d012
+		lda VIC.RASTER_LINE
+		cmp VIC.RASTER_LINE
 		bne *-3
 
 		nop
@@ -441,7 +441,7 @@ Split03a: {
 		lda #>Split01
 		sta MEMORY.INT_SERVICE_HIGH
 		lda #$fa
-		sta $d012
+		sta VIC.RASTER_LINE
 
 	ModA:
 		lda #$00
