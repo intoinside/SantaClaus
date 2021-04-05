@@ -1,6 +1,8 @@
 
 ReindeerFrame:
 	.byte $00
+SantaFrame:
+	.byte $00
 
 SetupSprites: {
 		lda #$2c						// Sleigh (0)
@@ -51,7 +53,7 @@ SetupSprites: {
 		sta VIC.SPRITE_4_Y
 		sta VIC.SPRITE_5_Y
 
-		lda #$dc			// Santa and santa shadow Y position
+		lda #$dd			// Santa and santa shadow Y position
 		sta VIC.SPRITE_6_Y
 		sta VIC.SPRITE_7_Y
 
@@ -72,6 +74,40 @@ SetupSprites: {
 		sta VIC.SPRITE_6_X
 		sta VIC.SPRITE_7_X
 
+		rts
+}
+
+MoveSanta: {
+		jsr SwitchSantaFrame
+		rts
+}
+
+SwitchSantaFrame: {
+		lda SantaFrame
+		lsr
+		lsr
+		lsr
+		cmp #$00
+		beq Frame1
+		lda #$32
+		ldx #$33
+		jmp SetFrame
+	Frame1:
+		lda #$34
+		ldx #$35
+	SetFrame:
+		sta SCREEN_RAM + $03f8 + $07	// 3byte, 4cyc
+		stx SCREEN_RAM + $03f8 + $06	// 3byte, 4cyc
+	CheckSantaFrame:
+		lda SantaFrame
+		cmp #$0f
+		beq ResetSantaFrame
+		inc SantaFrame
+		jmp SwitchSantaFrameDone
+	ResetSantaFrame:
+		lda #$00
+		sta SantaFrame
+	SwitchSantaFrameDone:
 		rts
 }
 
@@ -194,10 +230,10 @@ SwitchReindeerFrame: {
 	CheckReindeerFrame:
 		lda ReindeerFrame
 		cmp #$1f
-		beq ResetFrameReindeer
+		beq ResetReindeerFrame
 		inc ReindeerFrame
 		jmp SwitchReindeerFrameDone
-	ResetFrameReindeer:
+	ResetReindeerFrame:
 		lda #$00
 		sta ReindeerFrame
 	SwitchReindeerFrameDone:

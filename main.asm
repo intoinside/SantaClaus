@@ -108,6 +108,8 @@ Direction:
 
 
 ScrollSprites: {
+		jsr MoveSanta
+	/*
 		lda Direction
 		bpl !+
 		clc
@@ -129,6 +131,7 @@ ScrollSprites: {
 		sbc #$00
 		and #$01
 		sta SpritePositions + 1
+		*/
 	!exit:
 		rts
 }
