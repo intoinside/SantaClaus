@@ -112,40 +112,57 @@ SwitchSantaFrame: {
 }
 
 MoveSleigh: {
-		jsr SwitchReindeerFrame
+		lda Direction
+		cmp #$00
+		beq NoMove
+		cmp #$ff
+		beq MoveBackward
 
-		lda VIC.SPRITE_0_X			// Moving sleigh and elf
+	MoveForward:
+		lda #$01
+		jmp ApplyMove
+
+	NoMove:
+		lda #$02
+		jmp ApplyMove
+
+	MoveBackward:
+		lda #$03
+
+	ApplyMove:
+		tax
 		clc
-		adc #$01
+		adc VIC.SPRITE_0_X	
 		sta VIC.SPRITE_0_X
 		sta VIC.SPRITE_1_X
 		bcs ToggleExtraXSleigh	// Check if sleigh goes over 255px
 
 	EvaluateReindeer:
-		lda VIC.SPRITE_2_X			// Moving reindeer 1
+		txa
 		clc
-		adc #$01
+		adc VIC.SPRITE_2_X
 		sta VIC.SPRITE_2_X
 		bcs ToggleExtraXReindeer1
 	Reindeer2:
-		lda VIC.SPRITE_3_X			// Moving reindeer 2
+		txa
 		clc
-		adc #$01
+		adc VIC.SPRITE_3_X
 		sta VIC.SPRITE_3_X
 		bcs ToggleExtraXReindeer2
 	Reindeer3:
-		lda VIC.SPRITE_4_X			// Moving reindeer 3
+		txa
 		clc
-		adc #$01
+		adc VIC.SPRITE_4_X
 		sta VIC.SPRITE_4_X
 		bcs ToggleExtraXReindeer3
 	Reindeer4:
-		lda VIC.SPRITE_5_X			// Moving reindeer 4
+		txa
 		clc
-		adc #$01
+		adc VIC.SPRITE_5_X
 		sta VIC.SPRITE_5_X
 		bcs ToggleExtraXReindeer4
 	LastReindeerDone:
+		jsr SwitchReindeerFrame
 		rts
 
 	ToggleExtraXSleigh:
