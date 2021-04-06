@@ -3,6 +3,7 @@
 BasicUpstart2(Entry)
 
 #import "label.asm"
+#import "utils.asm"
 #import "scrolling.asm"
 #import "sprites.asm"
 #import "screen.asm"
@@ -97,7 +98,7 @@ SpritePositions:
 MapPositionBottom:
 	.byte $07, $00 //Frac/Full
 MapPositionLandscape:
-	.byte $07, $00 //Frac/Full	
+	.byte $07, $00 //Frac/Full
 
 MapSpeed:
 	.byte $01,$01

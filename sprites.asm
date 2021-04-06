@@ -70,7 +70,7 @@ SetupSprites: {
 		lda #$7e			// Reindeer 4 X position
 		sta VIC.SPRITE_5_X
 
-		lda #$90			// Santa and santa shadow X position
+		lda #$60			// Santa and santa shadow X position
 		sta VIC.SPRITE_6_X
 		sta VIC.SPRITE_7_X
 
@@ -112,6 +112,7 @@ SwitchSantaFrame: {
 }
 
 MoveSleigh: {
+		jsr DetectSleighNewY
 		lda Direction
 		cmp #$00
 		beq NoMove
@@ -229,6 +230,35 @@ MoveSleigh: {
 		sta VIC.SPRITE_EXTRAX
 	!ReloadXReindeer4:
 		jmp LastReindeerDone
+}
+
+DetectSleighNewY: {
+		lda VIC.SPRITE_5_X
+		cmp #$fd
+		beq !+
+		cmp #$fe
+		beq !+
+		cmp #$ff
+		bne End
+	!:
+		lda VIC.SPRITE_EXTRAX
+		and #%00000001
+		cmp #%00000001
+		bne End
+		lda #$4f
+		sta MaxNumberGenerator
+		jsr GetRandomNumber
+		lda RandomNumber
+		clc
+		adc #$37
+		sta VIC.SPRITE_0_Y
+		sta VIC.SPRITE_1_Y
+		sta VIC.SPRITE_2_Y
+		sta VIC.SPRITE_3_Y
+		sta VIC.SPRITE_4_Y
+		sta VIC.SPRITE_5_Y
+	End:
+		rts
 }
 
 SwitchReindeerFrame: {
