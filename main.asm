@@ -57,12 +57,19 @@ Entry:
 		lda #$00
 		sta FrameFlag
 
-
 		//Do shifts here
 		ldx #$00
 		lda $dc00
 		lsr
+		bcs !NoUp+
+		ldx #$ff
+	!NoUp:
 		lsr
+		bcs !NoDown+
+		ldx #$01
+	!NoDown:
+		stx DirectionY
+		ldx #$00
 		lsr
 		bcs !NoLeft+
 		ldx #$ff
@@ -71,10 +78,13 @@ Entry:
 		bcs !NoRight+
 		ldx #$01
 	!NoRight:
-
 		stx Direction
-		
-
+		ldx #$00
+		lsr
+		bcs !NoFirePressed+
+		ldx #$ff
+	!NoFirePressed:
+		stx FirePressed 			
 		lda Direction
 		beq !NoMove+
 		jsr ScrollSprites
@@ -86,7 +96,6 @@ Entry:
 
 		jmp !Loop-
 
-
 FrameFlag:
 	.byte $00
 
@@ -96,16 +105,20 @@ SpritePositions:
 
 
 MapPositionBottom:
-	.byte $07, $00 //Frac/Full
+	.byte $07, $00 	//Frac/Full
 MapPositionLandscape:
-	.byte $07, $00 //Frac/Full
+	.byte $07, $00 	//Frac/Full
 
 MapSpeed:
 	.byte $01,$01
 SpriteSpeed:
 	.byte $04
-Direction:
+Direction:			// $00 - no move, $01 - right, $ff - left
 	.byte $ff
+DirectionY:			// $00 - no move, $01 - down, $ff - up
+	.byte $ff
+FirePressed:		// Fire pressed = $ff
+	.byte $00
 
 
 ScrollSprites: {
