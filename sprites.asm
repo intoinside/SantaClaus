@@ -89,15 +89,30 @@ SwitchSantaFrame: {
 		lsr
 		cmp #$00
 		beq Frame1
-		lda #$32
-		ldx #$33
-		jmp SetFrame
+		ldx #$32
+		ldy #$33
+		jmp CheckDirection
 	Frame1:
-		lda #$34
-		ldx #$35
+		ldx #$34
+		ldy #$35
+	CheckDirection:
+		lda Direction
+		cmp #$ff
+		beq SantaLeft
+		cmp #$01
+		beq SetFrame
+		jmp SwitchSantaFrameDone
+	SantaLeft:
+		txa
+		clc
+		adc #$04
+		tax
+
+		tay
+		iny
 	SetFrame:
-		sta SCREEN_RAM + $03f8 + $07	// 3byte, 4cyc
-		stx SCREEN_RAM + $03f8 + $06	// 3byte, 4cyc
+		stx SCREEN_RAM + $03f8 + $07	// 3byte, 4cyc
+		sty SCREEN_RAM + $03f8 + $06	// 3byte, 4cyc
 	CheckSantaFrame:
 		lda SantaFrame
 		cmp #$0f
