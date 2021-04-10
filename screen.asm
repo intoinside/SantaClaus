@@ -46,7 +46,7 @@ DrawMapFull2: {
 	ScrMod:
 		sta $BE00, x
 		tay
-		lda COLOR_MAP, y 
+		lda COLOR_MAP, y
 	ColMod:
 		sta $BE00, x
 		dex
@@ -54,7 +54,7 @@ DrawMapFull2: {
 
 		inc MapMod + 2
 
-		clc 
+		clc
 		lda ScrMod + 1
 		adc #$28
 		sta ScrMod + 1

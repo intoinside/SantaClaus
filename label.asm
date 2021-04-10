@@ -28,7 +28,7 @@ VIC: {
 	.label SPRITE_7_Y			= $d00f
 
 	.label SPRITE_EXTRAX		= $d010
-	
+
 	.label RASTER_LINE			= $d012
 
 	.label SCREEN_CONTROL1		= $d011
