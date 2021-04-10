@@ -10,7 +10,7 @@ IsLanding:
 
 Santa: {
 	.label Y 		= $de
-	.label MAX_JUMP = $1f
+	.label MAX_JUMP = $24
 }
 
 SetupSprites: {
