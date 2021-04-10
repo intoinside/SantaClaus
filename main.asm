@@ -73,10 +73,12 @@ Entry:
 		lsr
 		bcs !NoLeft+
 		ldx #$ff
+		stx Orientation
 	!NoLeft:
 		lsr
 		bcs !NoRight+
 		ldx #$01
+		stx Orientation
 	!NoRight:
 		stx Direction
 		ldx #$00
@@ -84,13 +86,22 @@ Entry:
 		bcs !NoFirePressed+
 		ldx #$ff
 	!NoFirePressed:
-		stx FirePressed 			
+		stx FirePressed
+
 		lda Direction
-		beq !NoMove+
-		jsr ScrollSprites
+		cmp #$00
+		bne !SomeMovement+
+		lda DirectionY
+		cmp #$00
+		bne !SomeMovement+
+		jmp !NoMove+
+	!SomeMovement:
 		jsr ScrollLandscape
 		jsr ScrollForeground
+		jsr SwitchSantaFrame
+		jsr StartSantaJumpOrLand
 	!NoMove:
+		jsr ManageSantaJumpOrLand
 		jsr MoveSleigh
 		jsr ScrollChars
 
@@ -99,10 +110,8 @@ Entry:
 FrameFlag:
 	.byte $00
 
-
 SpritePositions:
 	.byte $80,$00 	//LSB/MSB
-
 
 MapPositionBottom:
 	.byte $07, $00 	//Frac/Full
@@ -113,16 +122,18 @@ MapSpeed:
 	.byte $01,$01
 SpriteSpeed:
 	.byte $04
-Direction:			// $00 - no move, $01 - right, $ff - left
-	.byte $ff
-DirectionY:			// $00 - no move, $01 - down, $ff - up
-	.byte $ff
-FirePressed:		// Fire pressed = $ff
-	.byte $00
 
+Orientation:		// Actual Santa orientation
+	.byte $01 		// $01 - right, $ff - left
+Direction:			// Actual game direction
+	.byte $01		// $00 - no move, $01 - right, $ff - left
+DirectionY:			// Actual Santa vertical direction
+	.byte $ff		// $00 - no move, $01 - down, $ff - up
+
+FirePressed:
+	.byte $00		// Fire pressed = $ff
 
 ScrollSprites: {
-		jsr MoveSanta
 	/*
 		lda Direction
 		bpl !+
@@ -156,7 +167,7 @@ ScrollChars: {
 	/*
 		inc ScrollTimer
 
-		lda Direction	
+		lda Direction
 		beq !end+
 		bpl !forward+
 
@@ -254,7 +265,7 @@ Split01: {
 		iny
 		iny
 		cpy #$10
-		bne !-		
+		bne !-
 
 		ldx #$00
 		lda SpritePositions + 1
@@ -315,7 +326,6 @@ Split01a: {
 		ldy #$00
 		asl $d019				// Interrupt status register
 		rti
-
 }
 
 Split02: {
@@ -334,7 +344,7 @@ Split02: {
 		lda #>Split03
 		sta MEMORY.INT_SERVICE_HIGH
 		lda #$81
-		sta VIC.RASTER_LINE	
+		sta VIC.RASTER_LINE
 	ModA:
 		lda #$00
 	ModX:
@@ -384,7 +394,6 @@ Split03: {
 		ldy #$00
 		asl $d019
 		rti
-
 }
 
 Split03aa: {
@@ -403,7 +412,7 @@ Split03aa: {
 		iny
 		iny
 		cpy #$10
-		bne !-	
+		bne !-
 */
 
 		lda #<Split03a
@@ -411,7 +420,7 @@ Split03aa: {
 		lda #>Split03a
 		sta MEMORY.INT_SERVICE_HIGH
 		lda #$d1
-		sta VIC.RASTER_LINE	
+		sta VIC.RASTER_LINE
 
 	ModA:
 		lda #$00
@@ -421,11 +430,9 @@ Split03aa: {
 		ldy #$00
 		asl $d019
 		rti
-
 }
 
 Split03a: {
-
 		sta ModA + 1
 		stx ModX + 1
 		sty ModY + 1
@@ -472,7 +479,7 @@ Split03a: {
 
 * = * "ShiftMap"
 ShiftMap: {
-		txa 
+		txa
 		clc
 		adc #$26
 		tax
@@ -484,7 +491,7 @@ ShiftMap: {
 				lda VIC.COLOR_RAM + $28 * i + j + 1
 				sta VIC.COLOR_RAM + $28 * i + j + 0
 			}
-			lda CHAR_MAP + $100 * i, x	
+			lda CHAR_MAP + $100 * i, x
 			sta SCREEN_RAM + $28 * i + $26
 			tay
 			lda COLOR_MAP, y
@@ -495,7 +502,7 @@ ShiftMap: {
 
 
 ShiftMapLandscape: {
-		txa 
+		txa
 		clc
 		adc #$26
 		tax
@@ -505,7 +512,7 @@ ShiftMapLandscape: {
 				lda SCREEN_RAM + $28 * i + j + 1
 				sta SCREEN_RAM + $28 * i + j + 0
 			}
-			lda CHAR_MAP + $100 * i, x	
+			lda CHAR_MAP + $100 * i, x
 			sta SCREEN_RAM + $28 * i + $26
 		}
 		rts
@@ -517,7 +524,7 @@ ShiftMapLandscapeBack: {
 				lda SCREEN_RAM + $28 * i + j + 0
 				sta SCREEN_RAM + $28 * i + j + 1
 			}
-			lda CHAR_MAP + $100 * i, x	
+			lda CHAR_MAP + $100 * i, x
 			sta SCREEN_RAM + $28 * i
 		}
 		rts
@@ -552,7 +559,7 @@ ShiftMapBack: {
 				lda VIC.COLOR_RAM + $28 * i + j + 0
 				sta VIC.COLOR_RAM + $28 * i + j + 1
 			}
-			lda CHAR_MAP + $100 * i, x	
+			lda CHAR_MAP + $100 * i, x
 			sta SCREEN_RAM + $28 * i
 			tay
 			lda COLOR_MAP, y

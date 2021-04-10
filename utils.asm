@@ -3,6 +3,7 @@ MaxNumberGenerator:
 	.byte $00
 RandomNumber:
 	.byte $00
+
 GetRandomNumber: {
         lda $d012
         eor $dc04

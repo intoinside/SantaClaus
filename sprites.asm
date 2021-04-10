@@ -3,6 +3,15 @@ ReindeerFrame:
 	.byte $00
 SantaFrame:
 	.byte $00
+IsJumping:
+	.byte $00
+IsLanding:
+	.byte Santa.MAX_JUMP
+
+Santa: {
+	.label Y 		= $de
+	.label MAX_JUMP = $1f
+}
 
 SetupSprites: {
 		lda #$2c						// Sleigh (0)
@@ -44,8 +53,8 @@ SetupSprites: {
 		lda #%11111111
 		sta VIC.SPRITE_ENABLE
 
-// Y Positioning 
-		lda #$80			// Sleigh, elf and reindeer Y position
+// Y Positioning
+		lda #$80				// Sleigh, elf and reindeer Y position
 		sta VIC.SPRITE_0_Y
 		sta VIC.SPRITE_1_Y
 		sta VIC.SPRITE_2_Y
@@ -53,36 +62,108 @@ SetupSprites: {
 		sta VIC.SPRITE_4_Y
 		sta VIC.SPRITE_5_Y
 
-		lda #$dd			// Santa and santa shadow Y position
+		lda #Santa.Y			// Santa and santa shadow Y position
 		sta VIC.SPRITE_6_Y
 		sta VIC.SPRITE_7_Y
 
-// X Positioning 
-		lda #$30			// Sleigh, elf X position
+// X Positioning
+		lda #$30				// Sleigh, elf X position
 		sta VIC.SPRITE_0_X
 		sta VIC.SPRITE_1_X
-		lda #$48			// Reindeer 1 X position
+		lda #$48				// Reindeer 1 X position
 		sta VIC.SPRITE_2_X
-		lda #$5a			// Reindeer 2 X position
+		lda #$5a				// Reindeer 2 X position
 		sta VIC.SPRITE_3_X
-		lda #$6c			// Reindeer 3 X position
+		lda #$6c				// Reindeer 3 X position
 		sta VIC.SPRITE_4_X
-		lda #$7e			// Reindeer 4 X position
+		lda #$7e				// Reindeer 4 X position
 		sta VIC.SPRITE_5_X
 
-		lda #$60			// Santa and santa shadow X position
+		lda #$60				// Santa and Santa shadow X position
 		sta VIC.SPRITE_6_X
 		sta VIC.SPRITE_7_X
 
 		rts
 }
 
-MoveSanta: {
+StartSantaJumpOrLand: {
+		lda DirectionY			// Direction up, check for a jump
+		cmp #$ff
+		bne !+
+		lda IsJumping			// No jump in progress, check if a new jump should start
+		cmp #$00
+		bne !+					// Already in a jump session, exit
+		inc IsJumping			// No jump, start a new jump session
+	!:
+		rts
+}
+
+ManageSantaJumpOrLand: {
+		lda IsJumping
+		beq Done				// When IsJumping = 0 => no jump in progress, check if should start a new jump
+		cmp #Santa.MAX_JUMP
+		beq PerformLand			// When IsJumping = SANTA.MAX_JUMP => jump rise is done, start to land
+		jmp PerformJump			// When 0 < IsJumping < SANTA.MAX_JUMP => jump rise is in progress, proceed
+
+	PerformLand:
+		lda #Santa.Y 			// Get default position
+		clc
+		sbc IsLanding			// Detect and set new position
+		sta VIC.SPRITE_6_Y
+		sta VIC.SPRITE_7_Y
+		dec IsLanding
+		bmi ResetVars			// Landing done, reset vars
+		jmp UpdateFrame			// Update sprite frame
+
+	PerformJump:
+		lda #Santa.Y 			// Get default position
+		clc
+		sbc IsJumping			// Detect and set new position
+		sta VIC.SPRITE_6_Y
+		sta VIC.SPRITE_7_Y
+		inc IsJumping
+		jmp UpdateFrame			// Update sprite frame
+
+	ResetVars:
+		lda #$00
+		sta IsJumping
+		sta SantaFrame
+		lda #Santa.MAX_JUMP
+		sta IsLanding
+	UpdateFrame:
 		jsr SwitchSantaFrame
+	Done:
 		rts
 }
 
 SwitchSantaFrame: {
+		lda IsJumping		// If IsJumping == 0 => no jump in progress
+		beq NoJump
+		cmp #Santa.MAX_JUMP
+		beq CheckLanding
+		lda Orientation
+		cmp #$ff
+		beq SantaJumpLeft
+		ldx #$3a			// Santa is rising (face on left)
+		ldy #$3b
+		jmp SetFrame
+	SantaJumpLeft:
+		ldx #$3e			// Santa is rising (face on right)
+		ldy #$3f
+		jmp SetFrame
+
+	CheckLanding:
+		lda Orientation
+		cmp #$ff
+		beq SantaLandLeft
+		ldx #$3c			// Santa is landing (face on left)
+		ldy #$3d
+		jmp SetFrame
+	SantaLandLeft:
+		ldx #$40			// Santa is landing (face on right)
+		ldy #$41
+		jmp SetFrame
+	NoJump:
 		lda SantaFrame
 		lsr
 		lsr
@@ -96,7 +177,7 @@ SwitchSantaFrame: {
 		ldx #$34
 		ldy #$35
 	CheckDirection:
-		lda Direction
+		lda Orientation
 		cmp #$ff
 		beq SantaLeft
 		cmp #$01
@@ -107,7 +188,6 @@ SwitchSantaFrame: {
 		clc
 		adc #$04
 		tax
-
 		tay
 		iny
 	SetFrame:
@@ -148,7 +228,7 @@ MoveSleigh: {
 	ApplyMove:
 		tax
 		clc
-		adc VIC.SPRITE_0_X	
+		adc VIC.SPRITE_0_X
 		sta VIC.SPRITE_0_X
 		sta VIC.SPRITE_1_X
 		bcs ToggleExtraXSleigh	// Check if sleigh goes over 255px
