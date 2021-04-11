@@ -9,48 +9,52 @@ IsLanding:
 	.byte Santa.MAX_JUMP
 
 Santa: {
-	.label Y 		= $de
-	.label MAX_JUMP = $24
+	.label Y 			= $dd
+	.label MAX_JUMP 	= $24
+
+	.label PREV_X   	= $00
+	.label PREV_Y   	= $00
+
+	.label PREV_X_S 	= $00
+	.label PREV_Y_S 	= $00
+
+	.label PREV_MBSX	= $00
 }
 
 SetupSprites: {
-		lda #$2c						// Sleigh (0)
+		lda #$2c						// Elf (1)
 		sta SCREEN_RAM + $03f8 + $00
-		lda #$2d						// Elf (1)
+		lda #$2d						// Reindeer(s) (2-3-4-5)
 		sta SCREEN_RAM + $03f8 + $01
-		lda #$2e						// Reindeer(s) (2-3-4-5)
 		sta SCREEN_RAM + $03f8 + $02
 		sta SCREEN_RAM + $03f8 + $03
 		sta SCREEN_RAM + $03f8 + $04
+		lda #$34						// Santa (7)
 		sta SCREEN_RAM + $03f8 + $05
-		lda #$35						// Santa (7)
+		lda #$33						// Santa shadow (6)
 		sta SCREEN_RAM + $03f8 + $06
-		lda #$34						// Santa shadow (6)
-		sta SCREEN_RAM + $03f8 + $07
 
 		lda #%11111111
 		sta VIC.SPRITE_MULTICOLOR
 
-		lda #$02
-		sta $d027			// Sleigh Sprite #0 color
 		lda #$05
-		sta $d028			// Elf Sprite #1 color
+		sta $d027			// Elf Sprite #1 color
 		lda #$09
-		sta $d029			// Reindeer Sprite #2-5 color
+		sta $d028			// Reindeer Sprite #2-5 color
+		sta $d029
 		sta $d02a
 		sta $d02b
-		sta $d02c
 		lda #$00
-		sta $d02d			// Santa Sprite #6 color
+		sta $d02c			// Santa Sprite #6 color
 		lda #$01
-		sta $d02e			// Santa shadow Sprite #7 color
+		sta $d02d			// Santa shadow Sprite #7 color
 
 		lda #$02
 		sta VIC.SPRITE_EXTRACOLOR1
 		lda #$08
 		sta VIC.SPRITE_EXTRACOLOR2
 
-		lda #%11111111
+		lda #%01111111
 		sta VIC.SPRITE_ENABLE
 
 // Y Positioning
@@ -60,31 +64,48 @@ SetupSprites: {
 		sta VIC.SPRITE_2_Y
 		sta VIC.SPRITE_3_Y
 		sta VIC.SPRITE_4_Y
-		sta VIC.SPRITE_5_Y
 
 		lda #Santa.Y			// Santa and santa shadow Y position
+		sta VIC.SPRITE_5_Y
 		sta VIC.SPRITE_6_Y
-		sta VIC.SPRITE_7_Y
 
 // X Positioning
 		lda #$30				// Sleigh, elf X position
 		sta VIC.SPRITE_0_X
-		sta VIC.SPRITE_1_X
 		lda #$48				// Reindeer 1 X position
-		sta VIC.SPRITE_2_X
+		sta VIC.SPRITE_1_X
 		lda #$5a				// Reindeer 2 X position
-		sta VIC.SPRITE_3_X
+		sta VIC.SPRITE_2_X
 		lda #$6c				// Reindeer 3 X position
-		sta VIC.SPRITE_4_X
+		sta VIC.SPRITE_3_X
 		lda #$7e				// Reindeer 4 X position
-		sta VIC.SPRITE_5_X
+		sta VIC.SPRITE_4_X
 
 		lda #$60				// Santa and Santa shadow X position
+		sta VIC.SPRITE_5_X
 		sta VIC.SPRITE_6_X
-		sta VIC.SPRITE_7_X
 
 		rts
 }
+
+/*
+InitCollisionDetector: {
+        lda VIC.SPRITE_5_X
+        sta Santa.PREV_X
+        lda VIC.SPRITE_5_Y
+        sta Santa.PREV_Y
+
+        lda VIC.SPRITE_6_X
+        sta Santa.PREV_X_S
+        lda VIC.SPRITE_6_Y
+        sta Santa.PREV_Y_S
+
+        lda VIC.SPRITE_EXTRAX
+        sta Santa.PREV_MBSX
+
+		rts
+}
+*/
 
 StartSantaJumpOrLand: {
 		lda DirectionY			// Direction up, check for a jump
@@ -109,8 +130,8 @@ ManageSantaJumpOrLand: {
 		lda #Santa.Y 			// Get default position
 		clc
 		sbc IsLanding			// Detect and set new position
+		sta VIC.SPRITE_5_Y
 		sta VIC.SPRITE_6_Y
-		sta VIC.SPRITE_7_Y
 		dec IsLanding
 		bmi ResetVars			// Landing done, reset vars
 		jmp UpdateFrame			// Update sprite frame
@@ -119,8 +140,8 @@ ManageSantaJumpOrLand: {
 		lda #Santa.Y 			// Get default position
 		clc
 		sbc IsJumping			// Detect and set new position
+		sta VIC.SPRITE_5_Y
 		sta VIC.SPRITE_6_Y
-		sta VIC.SPRITE_7_Y
 		inc IsJumping
 		jmp UpdateFrame			// Update sprite frame
 
@@ -144,24 +165,24 @@ SwitchSantaFrame: {
 		lda Orientation
 		cmp #$ff
 		beq SantaJumpLeft
-		ldx #$3a			// Santa is rising (face on left)
-		ldy #$3b
+		ldx #$39			// Santa is rising (face on right)
+		ldy #$3a
 		jmp SetFrame
 	SantaJumpLeft:
-		ldx #$3e			// Santa is rising (face on right)
-		ldy #$3f
+		ldx #$3d			// Santa is rising (face on left)
+		ldy #$3e
 		jmp SetFrame
 
 	CheckLanding:
 		lda Orientation
 		cmp #$ff
 		beq SantaLandLeft
-		ldx #$3c			// Santa is landing (face on left)
-		ldy #$3d
+		ldx #$3b			// Santa is landing (face on left)
+		ldy #$3c
 		jmp SetFrame
 	SantaLandLeft:
-		ldx #$40			// Santa is landing (face on right)
-		ldy #$41
+		ldx #$3f			// Santa is landing (face on right)
+		ldy #$40
 		jmp SetFrame
 	NoJump:
 		lda SantaFrame
@@ -170,12 +191,12 @@ SwitchSantaFrame: {
 		lsr
 		cmp #$00
 		beq Frame1
-		ldx #$32
-		ldy #$33
+		ldx #$31
+		ldy #$32
 		jmp CheckDirection
 	Frame1:
-		ldx #$34
-		ldy #$35
+		ldx #$33
+		ldy #$34
 	CheckDirection:
 		lda Orientation
 		cmp #$ff
@@ -191,8 +212,8 @@ SwitchSantaFrame: {
 		tay
 		iny
 	SetFrame:
-		stx SCREEN_RAM + $03f8 + $07	// 3byte, 4cyc
-		sty SCREEN_RAM + $03f8 + $06	// 3byte, 4cyc
+		stx SCREEN_RAM + $03f8 + $06	// 3byte, 4cyc
+		sty SCREEN_RAM + $03f8 + $05	// 3byte, 4cyc
 	CheckSantaFrame:
 		lda SantaFrame
 		cmp #$0f
@@ -230,32 +251,31 @@ MoveSleigh: {
 		clc
 		adc VIC.SPRITE_0_X
 		sta VIC.SPRITE_0_X
-		sta VIC.SPRITE_1_X
 		bcs ToggleExtraXSleigh	// Check if sleigh goes over 255px
 
 	EvaluateReindeer:
 		txa
 		clc
-		adc VIC.SPRITE_2_X
-		sta VIC.SPRITE_2_X
+		adc VIC.SPRITE_1_X
+		sta VIC.SPRITE_1_X
 		bcs ToggleExtraXReindeer1
 	Reindeer2:
 		txa
 		clc
-		adc VIC.SPRITE_3_X
-		sta VIC.SPRITE_3_X
+		adc VIC.SPRITE_2_X
+		sta VIC.SPRITE_2_X
 		bcs ToggleExtraXReindeer2
 	Reindeer3:
 		txa
 		clc
-		adc VIC.SPRITE_4_X
-		sta VIC.SPRITE_4_X
+		adc VIC.SPRITE_3_X
+		sta VIC.SPRITE_3_X
 		bcs ToggleExtraXReindeer3
 	Reindeer4:
 		txa
 		clc
-		adc VIC.SPRITE_5_X
-		sta VIC.SPRITE_5_X
+		adc VIC.SPRITE_4_X
+		sta VIC.SPRITE_4_X
 		bcs ToggleExtraXReindeer4
 	LastReindeerDone:
 		jsr SwitchReindeerFrame
@@ -263,65 +283,65 @@ MoveSleigh: {
 
 	ToggleExtraXSleigh:
 		lda VIC.SPRITE_EXTRAX 			// Setting or resetting sleigh and elf extra x position
-		cmp #%00100000
+		cmp #%00010000
 		bcs SetExtraXSleigh
-		and #%11111100
+		and #%11111110
 		sta VIC.SPRITE_EXTRAX
 		jmp !ReloadXSleighAndElf+
 	SetExtraXSleigh:
-		ora #%00000011
+		ora #%00000001
 		sta VIC.SPRITE_EXTRAX
 	!ReloadXSleighAndElf:
 		jmp EvaluateReindeer
 
 	ToggleExtraXReindeer1:
 		lda VIC.SPRITE_EXTRAX 			// Setting or resetting reindeer 1 extra x position
-		cmp #%00100000
+		cmp #%00010000
 		bcs SetExtraXReindeer1
-		and #%11111011
+		and #%11111101
 		sta VIC.SPRITE_EXTRAX
 		jmp !ReloadXReindeer1+
 	SetExtraXReindeer1:
-		ora #%00000100
+		ora #%00000010
 		sta VIC.SPRITE_EXTRAX
 	!ReloadXReindeer1:
 		jmp Reindeer2
 
 	ToggleExtraXReindeer2:
 		lda VIC.SPRITE_EXTRAX 			// Setting or resetting reindeer 2 extra x position
-		cmp #%00100000
+		cmp #%00010000
 		bcs SetExtraXReindeer2
-		and #%11110111
+		and #%11111011
 		sta VIC.SPRITE_EXTRAX
 		jmp !ReloadXReindeer2+
 	SetExtraXReindeer2:
-		ora #%00001000
+		ora #%00000100
 		sta VIC.SPRITE_EXTRAX
 	!ReloadXReindeer2:
 		jmp Reindeer3
 
 	ToggleExtraXReindeer3:
 		lda VIC.SPRITE_EXTRAX 			// Setting or resetting reindeer 3 extra x position
-		cmp #%00100000
+		cmp #%00010000
 		bcs SetExtraXReindeer3
-		and #%11101111
+		and #%11110111
 		sta VIC.SPRITE_EXTRAX
 		jmp !ReloadXReindeer3+
 	SetExtraXReindeer3:
-		ora #%00010000
+		ora #%00001000
 		sta VIC.SPRITE_EXTRAX
 	!ReloadXReindeer3:
 		jmp Reindeer4
 
 	ToggleExtraXReindeer4:
 		lda VIC.SPRITE_EXTRAX 			// Setting or resetting reindeer 4 extra x position
-		cmp #%00100000
+		cmp #%00010000
 		bcc SetExtraXReindeer4
-		and #%11011111
+		and #%11101111
 		sta VIC.SPRITE_EXTRAX
 		jmp !ReloadXReindeer4+
 	SetExtraXReindeer4:
-		ora #%00100000
+		ora #%00010000
 		sta VIC.SPRITE_EXTRAX
 	!ReloadXReindeer4:
 		jmp LastReindeerDone
@@ -351,7 +371,6 @@ DetectSleighNewY: {
 		sta VIC.SPRITE_2_Y
 		sta VIC.SPRITE_3_Y
 		sta VIC.SPRITE_4_Y
-		sta VIC.SPRITE_5_Y
 	End:
 		rts
 }
@@ -363,11 +382,11 @@ SwitchReindeerFrame: {
 		lsr
 		lsr
 		bcs CheckReindeerFrame
-		adc #$2e
+		adc #$2d
+		sta SCREEN_RAM + $03f8 + $01
 		sta SCREEN_RAM + $03f8 + $02
 		sta SCREEN_RAM + $03f8 + $03
 		sta SCREEN_RAM + $03f8 + $04
-		sta SCREEN_RAM + $03f8 + $05
 
 	CheckReindeerFrame:
 		lda ReindeerFrame
@@ -380,4 +399,43 @@ SwitchReindeerFrame: {
 		sta ReindeerFrame
 	SwitchReindeerFrameDone:
 		rts
+}
+
+CollisionDetected: {
+	CheckCollision:
+        ldx VIC.COLLISION_REGISTRY
+        cpx #%11000000
+        bne NoCollision
+        // MOVE SPRITE BACK TO PREVIOUS POSITION IF COLLIDED
+
+        lda Santa.PREV_X
+        sta VIC.SPRITE_5_X
+        lda Santa.PREV_Y
+        sta VIC.SPRITE_5_Y
+
+        lda Santa.PREV_X_S
+        sta VIC.SPRITE_6_X
+        lda Santa.PREV_Y_S
+        sta VIC.SPRITE_6_Y
+
+        lda Santa.PREV_MBSX
+        sta VIC.SPRITE_EXTRAX
+        jmp Done
+
+	NoCollision:
+        //; STORE PREVIOUS LOCATION WITH NO COLLISION
+        lda VIC.SPRITE_5_X
+        sta Santa.PREV_X
+        lda VIC.SPRITE_5_Y
+        sta Santa.PREV_Y
+
+        lda VIC.SPRITE_6_X
+        sta Santa.PREV_X_S
+        lda VIC.SPRITE_6_Y
+        sta Santa.PREV_Y_S
+
+        lda VIC.SPRITE_EXTRAX
+        sta Santa.PREV_MBSX
+    Done:
+    	rts
 }

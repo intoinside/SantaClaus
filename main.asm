@@ -11,22 +11,26 @@ BasicUpstart2(Entry)
 Entry:
 		sei
 		lda #$7f
-		sta $dc0d
-		sta $dd0d
+		sta CIA.IRQ_CONTROL
+		sta CIA.NMI_IRQ_CONTROL
 
-		lda #$35
-		sta $01
-
-		lda #%10					// Select vic bank
-		sta VIC.BANK
+		lda #%00110101				// Bit 0-2:
+		sta $01						// RAM visible at $A000-$BFFF and $E000-$FFFF
+									// I/O area visible at $D000-$DFFF
 
 		lda #%00000010
-		sta VIC.MEMORY_CONTROL		// Memory setup register
+		sta VIC.BANK				// Select Vic bank 0
+
+		lda #%00000010
+		sta VIC.MEMORY_CONTROL		// Pointer to char memory $0800-$0FFF
+									// Pointer to screen memory $0000-$03FF
 
 		lda VIC.SCREEN_CONTROL2		// Screen control register #2
 		and #%11110111
 		ora #%00010111
-		sta VIC.SCREEN_CONTROL2		// Screen control register #2
+		sta VIC.SCREEN_CONTROL2		// Horizontal raster scroll
+									// 38 columns
+									// Multicolor mode on
 
 		jsr InitScreen
 
@@ -35,17 +39,25 @@ Entry:
 		lda #>Split01
 		sta MEMORY.INT_SERVICE_HIGH
 		lda #$ff
-		sta VIC.RASTER_LINE 					// Raster line
+		sta VIC.RASTER_LINE 		// Raster line at $ff
 		lda VIC.SCREEN_CONTROL1		// Screen control register #1
-		and #$7f
-		sta VIC.SCREEN_CONTROL1		// Screen control register #1
+		and #%01111111
+		sta VIC.SCREEN_CONTROL1		// Vertical raster scroll
+									// 25 rows
+									// Screen on
+									// Bitmap mode on
+									// Extended background mode on
 
 		lda #$01
-		sta $d01a
+		sta VIC.INTERRUPT_CTRL		// Raster interrupt enabled
+									// Sprite-background collision interrupt disabled
+									// Sprite-sprite collision interrupt disabled
+									// Light pen interrupt disabled
 
 		asl $d019					// Interrupt status register
 
 		jsr SetupSprites
+//		jsr InitCollisionDetector
 
 		ldx #$00
 		jsr DrawMapFull2
@@ -100,6 +112,7 @@ Entry:
 		jsr ScrollForeground
 		jsr SwitchSantaFrame
 		jsr StartSantaJumpOrLand
+//		jsr CollisionDetected
 	!NoMove:
 		jsr ManageSantaJumpOrLand
 		jsr MoveSleigh
@@ -133,8 +146,8 @@ DirectionY:			// Actual Santa vertical direction
 FirePressed:
 	.byte $00		// Fire pressed = $ff
 
-ScrollSprites: {
 	/*
+ScrollSprites: {
 		lda Direction
 		bpl !+
 		clc
@@ -156,10 +169,10 @@ ScrollSprites: {
 		sbc #$00
 		and #$01
 		sta SpritePositions + 1
-		*/
 	!exit:
 		rts
 }
+		*/
 
 ScrollTimer:
 	.byte $00
@@ -226,6 +239,7 @@ Split01: {
 //		lda #$00
 //		sta VIC.BACKGROUND_COLOR 			// BACKGROUND COLOR
 
+/*
 		//Remove borders
 		lda VIC.SCREEN_CONTROL1			// Screen control register #1
 		and #%11110111
@@ -238,12 +252,14 @@ Split01: {
 		lda VIC.SCREEN_CONTROL1			// Screen control register #1
 		ora #%00001000
 		sta VIC.SCREEN_CONTROL1			// Screen control register #1
-
+*/
 		inc FrameFlag
 
+/*
 		//STATIC SECTION
 		lda #%0010000
 		sta VIC.SCREEN_CONTROL2			// Screen control register #2
+*/
 
 /*
 		//Do sprites
@@ -280,10 +296,15 @@ Split01: {
 		lda #>Split01a
 		sta MEMORY.INT_SERVICE_HIGH
 		lda #$00
-		sta VIC.RASTER_LINE 						// Raster line
+		sta VIC.RASTER_LINE 			// Raster line
 		lda VIC.SCREEN_CONTROL1			// Screen control register #1
-		and #$7f
-		sta VIC.SCREEN_CONTROL1			// Screen control register #1
+		and #%01111111
+		sta VIC.SCREEN_CONTROL1		// Vertical raster scroll
+									// 25 rows
+									// Screen on
+									// Bitmap mode on
+									// Extended background mode on
+
 	ModA:
 		lda #$00
 	ModX:

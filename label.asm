@@ -29,6 +29,8 @@ VIC: {
 
 	.label SPRITE_EXTRAX		= $d010
 
+	.label COLLISION_REGISTRY   = $d01f
+
 	.label RASTER_LINE			= $d012
 
 	.label SCREEN_CONTROL1		= $d011
@@ -36,12 +38,19 @@ VIC: {
 	.label BANK					= $dd00
 	.label MEMORY_CONTROL		= $d018
 
+	.label INTERRUPT_CTRL		= $d01a
+
 	.label BORDER_COLOR			= $d020
 	.label BACKGROUND_COLOR		= $d021
 
 	.label EXTRA_BACKGROUND1	= $d022
 	.label EXTRA_BACKGROUND2	= $d023
 	.label EXTRA_BACKGROUND3	= $d024
+}
+
+CIA: {
+	.label IRQ_CONTROL			= $dc0d
+	.label NMI_IRQ_CONTROL		= $dd0d
 }
 
 MEMORY: {
