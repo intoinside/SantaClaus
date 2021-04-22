@@ -112,7 +112,6 @@ Entry:
 		jsr ScrollForeground
 		jsr SwitchSantaFrame
 		jsr StartSantaJumpOrLand
-//		jsr CollisionDetected
 	!NoMove:
 		jsr ManageSantaJumpOrLand
 		jsr MoveSleigh
@@ -565,7 +564,7 @@ COLOR_MAP:
 .label SCREEN_RAM = $4000
 * = $4800 "Charset"
 	.import binary "./assets/chars.bin"
-* = $4b00 "Sprites"
+* = $4c00 "Sprites"
 	.import binary "./assets/sprites.bin"
 
 * = $7fff

@@ -22,32 +22,35 @@ Santa: {
 }
 
 SetupSprites: {
-		lda #$2c						// Elf (1)
+		lda #$30						// Elf (0)
 		sta SCREEN_RAM + $03f8 + $00
-		lda #$2d						// Reindeer(s) (2-3-4-5)
+		lda #$31						// Reindeer(s) (1-2-3-4)
 		sta SCREEN_RAM + $03f8 + $01
 		sta SCREEN_RAM + $03f8 + $02
 		sta SCREEN_RAM + $03f8 + $03
 		sta SCREEN_RAM + $03f8 + $04
-		lda #$34						// Santa (7)
+		lda #$38						// Santa (6)
 		sta SCREEN_RAM + $03f8 + $05
-		lda #$33						// Santa shadow (6)
+		lda #$37						// Santa shadow (5)
 		sta SCREEN_RAM + $03f8 + $06
+		lda #$42						// Gift (7)
+		sta SCREEN_RAM + $03f8 + $07
 
 		lda #%11111111
 		sta VIC.SPRITE_MULTICOLOR
 
 		lda #$05
-		sta $d027			// Elf Sprite #1 color
+		sta $d027			// Elf Sprite #0 color
 		lda #$09
-		sta $d028			// Reindeer Sprite #2-5 color
+		sta $d028			// Reindeer Sprite #1-4 color
 		sta $d029
 		sta $d02a
 		sta $d02b
 		lda #$00
-		sta $d02c			// Santa Sprite #6 color
+		sta $d02c			// Santa Sprite #5 color
 		lda #$01
-		sta $d02d			// Santa shadow Sprite #7 color
+		sta $d02d			// Santa shadow Sprite #6 color
+		sta $d02e			// Gift Sprite #7 color
 
 		lda #$02
 		sta VIC.SPRITE_EXTRACOLOR1
@@ -87,25 +90,6 @@ SetupSprites: {
 
 		rts
 }
-
-/*
-InitCollisionDetector: {
-        lda VIC.SPRITE_5_X
-        sta Santa.PREV_X
-        lda VIC.SPRITE_5_Y
-        sta Santa.PREV_Y
-
-        lda VIC.SPRITE_6_X
-        sta Santa.PREV_X_S
-        lda VIC.SPRITE_6_Y
-        sta Santa.PREV_Y_S
-
-        lda VIC.SPRITE_EXTRAX
-        sta Santa.PREV_MBSX
-
-		rts
-}
-*/
 
 StartSantaJumpOrLand: {
 		lda DirectionY			// Direction up, check for a jump
@@ -165,24 +149,24 @@ SwitchSantaFrame: {
 		lda Orientation
 		cmp #$ff
 		beq SantaJumpLeft
-		ldx #$39			// Santa is rising (face on right)
-		ldy #$3a
+		ldx #$3d			// Santa is rising (face on right)
+		ldy #$3e
 		jmp SetFrame
 	SantaJumpLeft:
-		ldx #$3d			// Santa is rising (face on left)
-		ldy #$3e
+		ldx #$41			// Santa is rising (face on left)
+		ldy #$42
 		jmp SetFrame
 
 	CheckLanding:
 		lda Orientation
 		cmp #$ff
 		beq SantaLandLeft
-		ldx #$3b			// Santa is landing (face on left)
-		ldy #$3c
+		ldx #$3f			// Santa is landing (face on left)
+		ldy #$40
 		jmp SetFrame
 	SantaLandLeft:
-		ldx #$3f			// Santa is landing (face on right)
-		ldy #$40
+		ldx #$43			// Santa is landing (face on right)
+		ldy #$44
 		jmp SetFrame
 	NoJump:
 		lda SantaFrame
@@ -191,12 +175,12 @@ SwitchSantaFrame: {
 		lsr
 		cmp #$00
 		beq Frame1
-		ldx #$31
-		ldy #$32
+		ldx #$35
+		ldy #$36
 		jmp CheckDirection
 	Frame1:
-		ldx #$33
-		ldy #$34
+		ldx #$37
+		ldy #$38
 	CheckDirection:
 		lda Orientation
 		cmp #$ff
@@ -382,7 +366,7 @@ SwitchReindeerFrame: {
 		lsr
 		lsr
 		bcs CheckReindeerFrame
-		adc #$2d
+		adc #$31
 		sta SCREEN_RAM + $03f8 + $01
 		sta SCREEN_RAM + $03f8 + $02
 		sta SCREEN_RAM + $03f8 + $03
@@ -399,43 +383,4 @@ SwitchReindeerFrame: {
 		sta ReindeerFrame
 	SwitchReindeerFrameDone:
 		rts
-}
-
-CollisionDetected: {
-	CheckCollision:
-        ldx VIC.COLLISION_REGISTRY
-        cpx #%11000000
-        bne NoCollision
-        // MOVE SPRITE BACK TO PREVIOUS POSITION IF COLLIDED
-
-        lda Santa.PREV_X
-        sta VIC.SPRITE_5_X
-        lda Santa.PREV_Y
-        sta VIC.SPRITE_5_Y
-
-        lda Santa.PREV_X_S
-        sta VIC.SPRITE_6_X
-        lda Santa.PREV_Y_S
-        sta VIC.SPRITE_6_Y
-
-        lda Santa.PREV_MBSX
-        sta VIC.SPRITE_EXTRAX
-        jmp Done
-
-	NoCollision:
-        //; STORE PREVIOUS LOCATION WITH NO COLLISION
-        lda VIC.SPRITE_5_X
-        sta Santa.PREV_X
-        lda VIC.SPRITE_5_Y
-        sta Santa.PREV_Y
-
-        lda VIC.SPRITE_6_X
-        sta Santa.PREV_X_S
-        lda VIC.SPRITE_6_Y
-        sta Santa.PREV_Y_S
-
-        lda VIC.SPRITE_EXTRAX
-        sta Santa.PREV_MBSX
-    Done:
-    	rts
 }
