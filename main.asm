@@ -57,7 +57,6 @@ Entry:
 		asl $d019					// Interrupt status register
 
 		jsr SetupSprites
-//		jsr InitCollisionDetector
 
 		ldx #$00
 		jsr DrawMapFull2
@@ -78,7 +77,6 @@ Entry:
 	!NoUp:
 		lsr
 		bcs !NoDown+
-		ldx #$01
 	!NoDown:
 		stx DirectionY
 		ldx #$00
