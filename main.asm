@@ -7,6 +7,7 @@ BasicUpstart2(Entry)
 #import "scrolling.asm"
 #import "sprites.asm"
 #import "screen.asm"
+#import "intro.asm"
 
 Entry:
 		sei
@@ -32,8 +33,6 @@ Entry:
 									// 38 columns
 									// Multicolor mode on
 
-		jsr InitScreen
-
 		lda #<Split01
 		sta MEMORY.INT_SERVICE_LOW
 		lda #>Split01
@@ -56,10 +55,15 @@ Entry:
 
 		asl $d019					// Interrupt status register
 
+// End setup region, start game
+		jsr GameIntro				// Show game intro (until fire pressed)
+
+		jsr InitScreen
 		jsr SetupSprites
 
 		ldx #$00
 		jsr DrawMapFull2
+
 		cli
 
 	!Loop:
@@ -68,7 +72,28 @@ Entry:
 		lda #$00
 		sta FrameFlag
 
-		//Do shifts here
+		jsr GetJoystickMove
+
+		lda Direction
+		cmp #$00
+		bne !SomeMovement+
+		lda DirectionY
+		cmp #$00
+		bne !SomeMovement+
+		jmp !NoMove+
+	!SomeMovement:
+		jsr ScrollLandscape
+		jsr ScrollForeground
+		jsr SwitchSantaFrame
+		jsr StartSantaJumpOrLand
+	!NoMove:
+		jsr ManageSantaJumpOrLand
+		jsr MoveSleigh
+		jsr ScrollChars
+
+		jmp !Loop-
+
+GetJoystickMove: {
 		ldx #$00
 		lda $dc00
 		lsr
@@ -97,25 +122,8 @@ Entry:
 		ldx #$ff
 	!NoFirePressed:
 		stx FirePressed
-
-		lda Direction
-		cmp #$00
-		bne !SomeMovement+
-		lda DirectionY
-		cmp #$00
-		bne !SomeMovement+
-		jmp !NoMove+
-	!SomeMovement:
-		jsr ScrollLandscape
-		jsr ScrollForeground
-		jsr SwitchSantaFrame
-		jsr StartSantaJumpOrLand
-	!NoMove:
-		jsr ManageSantaJumpOrLand
-		jsr MoveSleigh
-		jsr ScrollChars
-
-		jmp !Loop-
+		rts
+}
 
 FrameFlag:
 	.byte $00

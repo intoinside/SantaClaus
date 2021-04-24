@@ -12,6 +12,7 @@ InitScreen: {
 }
 
 ClearScreen: {
+		lda #$00
 		ldx #$00
 	!:
 		sta SCREEN_RAM, x
