@@ -82,6 +82,7 @@ Entry:
 		bne !SomeMovement+
 		jmp !NoMove+
 	!SomeMovement:
+		jsr MoveSanta
 		jsr ScrollLandscape
 		jsr ScrollForeground
 		jsr SwitchSantaFrame

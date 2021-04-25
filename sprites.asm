@@ -7,6 +7,8 @@ IsJumping:
 	.byte $00
 IsLanding:
 	.byte Santa.MAX_JUMP
+GiftThrown:
+	.byte $00
 
 Santa: {
 	.label Y 			= $dd
@@ -33,7 +35,7 @@ SetupSprites: {
 		sta SCREEN_RAM + $03f8 + $05
 		lda #$37						// Santa shadow (5)
 		sta SCREEN_RAM + $03f8 + $06
-		lda #$42						// Gift (7)
+		lda #$45						// Gift (7)
 		sta SCREEN_RAM + $03f8 + $07
 
 		lda #%11111111
@@ -213,6 +215,7 @@ SwitchSantaFrame: {
 
 MoveSleigh: {
 		jsr DetectSleighNewY
+		jsr ShouldThrowGift
 		lda Direction
 		cmp #$00
 		beq NoMove
@@ -271,6 +274,8 @@ MoveSleigh: {
 		bcs SetExtraXSleigh
 		and #%11111110
 		sta VIC.SPRITE_EXTRAX
+		lda #$00						// FOR TEST: should be removed
+		sta GiftThrown					// FOR TEST: should be removed
 		jmp !ReloadXSleighAndElf+
 	SetExtraXSleigh:
 		ora #%00000001
@@ -331,19 +336,39 @@ MoveSleigh: {
 		jmp LastReindeerDone
 }
 
-DetectSleighNewY: {
-		lda VIC.SPRITE_5_X
-		cmp #$fd
-		beq !+
-		cmp #$fe
-		beq !+
+MoveSanta: {
+		lda Direction
+		beq End
 		cmp #$ff
-		bne End
+		beq MoveRight
+	MoveLeft:
+		lda VIC.SPRITE_5_X
+		cmp #$97
+		beq End 				// Santa reached right limit
+		inc VIC.SPRITE_5_X
+		inc VIC.SPRITE_6_X
+		jmp ResetDirection
+	MoveRight:
+		lda VIC.SPRITE_5_X
+		cmp #$50
+		beq End 				// Santa reached left limit
+		dec VIC.SPRITE_5_X
+		dec VIC.SPRITE_6_X
+	ResetDirection:
+		lda #$00
+		sta Direction
+	End:
+		rts
+}
+DetectSleighNewY: {
+		lda VIC.SPRITE_4_X
+		cmp #$fa
+		bcs !+
+		jmp End
 	!:
 		lda VIC.SPRITE_EXTRAX
 		and #%00000001
-		cmp #%00000001
-		bne End
+		beq End
 		lda #$4f
 		sta MaxNumberGenerator
 		jsr GetRandomNumber
@@ -382,5 +407,39 @@ SwitchReindeerFrame: {
 		lda #$00
 		sta ReindeerFrame
 	SwitchReindeerFrameDone:
+		rts
+}
+
+ShouldThrowGift: {
+		lda VIC.SPRITE_0_X			// If sleigh is between $50 and $a0 px
+		cmp #$90					// then it can throw a gift
+		bcc NoThrow
+		cmp #$ff
+		bcs NoThrow
+		ldx GiftThrown				// If sleigh already thrown 2 gift
+		cpx #$01					// then no more gift should be thrown
+		bcs NoThrow
+		lda VIC.SPRITE_EXTRAX
+		and #%00000001
+		bne NoThrow
+		lda #$90
+		sta MaxNumberGenerator
+		jsr GetRandomNumber
+		ldx RandomNumber
+		cpx #$05
+		bcs NoThrow
+
+		inc GiftThrown				// Here we can throw a new gift
+
+		lda VIC.SPRITE_0_X
+		sta VIC.SPRITE_7_X
+		lda VIC.SPRITE_0_Y
+		sta VIC.SPRITE_7_Y
+
+		lda VIC.SPRITE_ENABLE
+		ora #%10000000
+		sta VIC.SPRITE_ENABLE
+
+	NoThrow:
 		rts
 }
