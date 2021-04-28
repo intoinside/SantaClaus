@@ -13,14 +13,6 @@ GiftThrown:
 Santa: {
 	.label Y 			= $dd
 	.label MAX_JUMP 	= $24
-
-	.label PREV_X   	= $00
-	.label PREV_Y   	= $00
-
-	.label PREV_X_S 	= $00
-	.label PREV_Y_S 	= $00
-
-	.label PREV_MBSX	= $00
 }
 
 SetupSprites: {
@@ -216,6 +208,7 @@ SwitchSantaFrame: {
 MoveSleigh: {
 		jsr DetectSleighNewY
 		jsr ShouldThrowGift
+		jsr LetGiftFall
 		lda Direction
 		cmp #$00
 		beq NoMove
@@ -270,14 +263,17 @@ MoveSleigh: {
 
 	ToggleExtraXSleigh:
 		lda VIC.SPRITE_EXTRAX 			// Setting or resetting sleigh and elf extra x position
-		cmp #%00010000
-		bcs SetExtraXSleigh
+		and #%00000001
+		beq SetExtraXSleigh
+		lda VIC.SPRITE_EXTRAX
 		and #%11111110
 		sta VIC.SPRITE_EXTRAX
-		lda #$00						// FOR TEST: should be removed
-		sta GiftThrown					// FOR TEST: should be removed
+
+		jsr REMOVEGIFT					// FOR TEST: should be removed
+
 		jmp !ReloadXSleighAndElf+
 	SetExtraXSleigh:
+		lda VIC.SPRITE_EXTRAX
 		ora #%00000001
 		sta VIC.SPRITE_EXTRAX
 	!ReloadXSleighAndElf:
@@ -285,12 +281,14 @@ MoveSleigh: {
 
 	ToggleExtraXReindeer1:
 		lda VIC.SPRITE_EXTRAX 			// Setting or resetting reindeer 1 extra x position
-		cmp #%00010000
-		bcs SetExtraXReindeer1
+		and #%00000010
+		beq SetExtraXReindeer1
+		lda VIC.SPRITE_EXTRAX
 		and #%11111101
 		sta VIC.SPRITE_EXTRAX
 		jmp !ReloadXReindeer1+
 	SetExtraXReindeer1:
+		lda VIC.SPRITE_EXTRAX
 		ora #%00000010
 		sta VIC.SPRITE_EXTRAX
 	!ReloadXReindeer1:
@@ -298,12 +296,14 @@ MoveSleigh: {
 
 	ToggleExtraXReindeer2:
 		lda VIC.SPRITE_EXTRAX 			// Setting or resetting reindeer 2 extra x position
-		cmp #%00010000
-		bcs SetExtraXReindeer2
+		and #%00000100
+		beq SetExtraXReindeer2
+		lda VIC.SPRITE_EXTRAX
 		and #%11111011
 		sta VIC.SPRITE_EXTRAX
 		jmp !ReloadXReindeer2+
 	SetExtraXReindeer2:
+		lda VIC.SPRITE_EXTRAX
 		ora #%00000100
 		sta VIC.SPRITE_EXTRAX
 	!ReloadXReindeer2:
@@ -311,12 +311,14 @@ MoveSleigh: {
 
 	ToggleExtraXReindeer3:
 		lda VIC.SPRITE_EXTRAX 			// Setting or resetting reindeer 3 extra x position
-		cmp #%00010000
-		bcs SetExtraXReindeer3
+		and #%00001000
+		beq SetExtraXReindeer3
+		lda VIC.SPRITE_EXTRAX
 		and #%11110111
 		sta VIC.SPRITE_EXTRAX
 		jmp !ReloadXReindeer3+
 	SetExtraXReindeer3:
+		lda VIC.SPRITE_EXTRAX
 		ora #%00001000
 		sta VIC.SPRITE_EXTRAX
 	!ReloadXReindeer3:
@@ -324,12 +326,14 @@ MoveSleigh: {
 
 	ToggleExtraXReindeer4:
 		lda VIC.SPRITE_EXTRAX 			// Setting or resetting reindeer 4 extra x position
-		cmp #%00010000
-		bcc SetExtraXReindeer4
+		and #%00010000
+		beq SetExtraXReindeer4
+		lda VIC.SPRITE_EXTRAX
 		and #%11101111
 		sta VIC.SPRITE_EXTRAX
 		jmp !ReloadXReindeer4+
 	SetExtraXReindeer4:
+		lda VIC.SPRITE_EXTRAX
 		ora #%00010000
 		sta VIC.SPRITE_EXTRAX
 	!ReloadXReindeer4:
@@ -360,6 +364,7 @@ MoveSanta: {
 	End:
 		rts
 }
+
 DetectSleighNewY: {
 		lda VIC.SPRITE_4_X
 		cmp #$fa
@@ -441,5 +446,67 @@ ShouldThrowGift: {
 		sta VIC.SPRITE_ENABLE
 
 	NoThrow:
+		rts
+}
+
+LetGiftFall: {
+		lda GiftThrown
+		beq NoGiftNeedsToFall		// There is no gift
+		lda VIC.SPRITE_7_Y
+		cmp #Santa.Y
+		beq NoGiftNeedsToFall		// Gift is already on the ground
+		inc VIC.SPRITE_7_Y
+	NoGiftNeedsToFall:
+		rts
+}
+
+MoveGiftOnDirection: {
+		lda GiftThrown
+		beq NoNeedToMove			// There is no gift
+		lda Direction
+		beq NoNeedToMove
+		bpl MoveGiftForward			// Choose direction to move gift
+
+	MoveGiftBackward:
+		inc VIC.SPRITE_7_X
+		jsr MayGiftExtraXBitSet
+		jmp NoNeedToMove
+
+	MoveGiftForward:
+		dec VIC.SPRITE_7_X
+		jsr MayGiftExtraXBitReset
+
+	NoNeedToMove:
+		rts
+}
+
+MayGiftExtraXBitReset: {
+		lda VIC.SPRITE_7_X
+		cmp #$ff
+		bne Done
+		lda VIC.SPRITE_EXTRAX
+		and #%01111111
+		sta VIC.SPRITE_EXTRAX
+	Done:
+		rts
+}
+
+MayGiftExtraXBitSet: {
+		lda VIC.SPRITE_7_X
+		bne Done
+		lda VIC.SPRITE_EXTRAX		// Gift moved over 255
+		ora #%10000000				// Set extra bit
+		sta VIC.SPRITE_EXTRAX
+	Done:
+		rts
+}
+
+REMOVEGIFT: {
+		rts
+		lda #$00
+		sta GiftThrown
+		lda VIC.SPRITE_ENABLE
+		and #%01111111
+		sta VIC.SPRITE_ENABLE
 		rts
 }

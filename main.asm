@@ -83,6 +83,7 @@ Entry:
 		jmp !NoMove+
 	!SomeMovement:
 		jsr MoveSanta
+		jsr MoveGiftOnDirection
 		jsr ScrollLandscape
 		jsr ScrollForeground
 		jsr SwitchSantaFrame
