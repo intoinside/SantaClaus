@@ -7,6 +7,7 @@ BasicUpstart2(Entry)
 #import "scrolling.asm"
 #import "sprites.asm"
 #import "screen.asm"
+#import "sound.asm"
 #import "intro.asm"
 
 Entry:
@@ -54,6 +55,8 @@ Entry:
 									// Light pen interrupt disabled
 
 		asl $d019					// Interrupt status register
+
+		jsr initSound
 
 // End setup region, start game
 		jsr GameIntro				// Show game intro (until fire pressed)
@@ -122,6 +125,7 @@ GetJoystickMove: {
 		lsr
 		bcs !NoFirePressed+
 		ldx #$ff
+		jsr playGiftExplosion
 	!NoFirePressed:
 		stx FirePressed
 		rts

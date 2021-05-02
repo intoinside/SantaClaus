@@ -48,6 +48,15 @@ VIC: {
 	.label EXTRA_BACKGROUND3	= $d024
 }
 
+SID: {
+	.label VOICE1_FREQ_1		= $d400
+	.label VOICE1_FREQ_2		= $d401
+	.label VOICE1_CTRL			= $d404
+	.label VOICE1_ATTACK_DECAY	= $d405
+	.label VOICE1_SUSTAIN_RELEASE	= $d406
+	.label VOLUME_FILTER_MODES	= $d418
+}
+
 CIA: {
 	.label IRQ_CONTROL			= $dc0d
 	.label NMI_IRQ_CONTROL		= $dd0d
