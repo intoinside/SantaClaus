@@ -56,7 +56,7 @@ Entry:
 
 		asl $d019					// Interrupt status register
 
-		jsr initSound
+		jsr InitSound
 
 // End setup region, start game
 		jsr GameIntro				// Show game intro (until fire pressed)
@@ -93,6 +93,7 @@ Entry:
 		jsr StartSantaJumpOrLand
 	!NoMove:
 		jsr ManageSantaJumpOrLand
+		jsr MayGiftExplode
 		jsr MoveSleigh
 		jsr ScrollChars
 
@@ -125,7 +126,6 @@ GetJoystickMove: {
 		lsr
 		bcs !NoFirePressed+
 		ldx #$ff
-		jsr playGiftExplosion
 	!NoFirePressed:
 		stx FirePressed
 		rts

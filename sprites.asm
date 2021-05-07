@@ -9,6 +9,10 @@ IsLanding:
 	.byte Santa.MAX_JUMP
 GiftThrown:
 	.byte $00
+GiftShouldExplode:
+	.byte $00
+GiftThrownFrame:
+	.byte $00
 
 Santa: {
 	.label Y 			= $dd
@@ -265,11 +269,10 @@ MoveSleigh: {
 		lda VIC.SPRITE_EXTRAX 			// Setting or resetting sleigh and elf extra x position
 		and #%00000001
 		beq SetExtraXSleigh
+		jsr SetGiftToExplode
 		lda VIC.SPRITE_EXTRAX
 		and #%11111110
 		sta VIC.SPRITE_EXTRAX
-
-		jsr REMOVEGIFT					// FOR TEST: should be removed
 
 		jmp !ReloadXSleighAndElf+
 	SetExtraXSleigh:
@@ -441,6 +444,9 @@ ShouldThrowGift: {
 		lda VIC.SPRITE_0_Y
 		sta VIC.SPRITE_7_Y
 
+		lda #$45
+		sta SCREEN_RAM + $03f8 + $07
+
 		lda VIC.SPRITE_ENABLE
 		ora #%10000000
 		sta VIC.SPRITE_ENABLE
@@ -501,8 +507,44 @@ MayGiftExtraXBitSet: {
 		rts
 }
 
-REMOVEGIFT: {
+SetGiftToExplode: {
+		jsr PlayGiftExplosion
+		lda #$01
+		sta GiftShouldExplode
 		rts
+}
+
+MayGiftExplode: {
+		lda GiftShouldExplode
+		beq Done
+		lda GiftThrownFrame
+		clc
+		lsr
+		lsr
+		lsr
+		bcs CheckGiftExplodeFrame
+		adc #$47
+		sta SCREEN_RAM + $03f8 + $07
+
+	CheckGiftExplodeFrame:
+		lda GiftThrownFrame
+		cmp #$1f
+		beq ResetGiftExplodeFrame
+		inc GiftThrownFrame
+		jmp Done
+	ResetGiftExplodeFrame:
+		lda #$00
+		sta GiftThrown
+		sta GiftThrownFrame
+		sta GiftShouldExplode
+		lda VIC.SPRITE_ENABLE
+		and #%01111111
+		sta VIC.SPRITE_ENABLE
+	Done:
+		rts
+}
+
+REMOVEGIFT: {
 		lda #$00
 		sta GiftThrown
 		lda VIC.SPRITE_ENABLE
