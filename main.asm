@@ -576,7 +576,7 @@ COLOR_MAP:
 .label SCREEN_RAM = $4000
 * = $4800 "Charset"
 	.import binary "./assets/chars.bin"
-* = $4c00 "Sprites"
+* = $4d00 "Sprites"
 	.import binary "./assets/sprites.bin"
 
 * = $7fff

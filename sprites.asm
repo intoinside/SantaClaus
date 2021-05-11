@@ -18,20 +18,44 @@ Santa: {
 	.label Y 			= $dd
 	.label MAX_JUMP 	= $24
 }
+SpritePointers: {
+	.label ELF			= $34
+	.label REINDEER_1	= $35
+	.label REINDEER_2	= $36
+	.label REINDEER_3	= $37
+	.label REINDEER_4	= $38
+	.label SANTA_LEFT		= $3a
+	.label SANTAS_LEFT		= $39
+	.label SANTA_RIGHT		= $3c
+	.label SANTAS_RIGHT	= $3b
+	.label SANTA_LANDING_RIGHT	= $48
+	.label SANTAS_LANDING_RIGHT	= $47
+	.label SANTA_JUMP_LEFT		= $46
+	.label SANTAS_JUMP_LEFT		= $45
+	.label SANTA_LANDING_LEFT	= $44
+	.label SANTAS_LANDING_LEFT	= $43
+	.label SANTA_JUMP_RIGHT		= $42
+	.label SANTAS_JUMP_RIGHT	= $41
+
+
+
+	.label GIFT			= $49
+
+}
 
 SetupSprites: {
-		lda #$30						// Elf (0)
+		lda #SpritePointers.ELF
 		sta SCREEN_RAM + $03f8 + $00
-		lda #$31						// Reindeer(s) (1-2-3-4)
+		lda #SpritePointers.REINDEER_1
 		sta SCREEN_RAM + $03f8 + $01
 		sta SCREEN_RAM + $03f8 + $02
 		sta SCREEN_RAM + $03f8 + $03
 		sta SCREEN_RAM + $03f8 + $04
-		lda #$38						// Santa (6)
+		lda #SpritePointers.SANTA_RIGHT
 		sta SCREEN_RAM + $03f8 + $05
-		lda #$37						// Santa shadow (5)
+		lda #SpritePointers.SANTAS_RIGHT
 		sta SCREEN_RAM + $03f8 + $06
-		lda #$45						// Gift (7)
+		lda #SpritePointers.GIFT
 		sta SCREEN_RAM + $03f8 + $07
 
 		lda #%11111111
@@ -147,24 +171,24 @@ SwitchSantaFrame: {
 		lda Orientation
 		cmp #$ff
 		beq SantaJumpLeft
-		ldx #$3d			// Santa is rising (face on right)
-		ldy #$3e
+		ldx #SpritePointers.SANTAS_JUMP_RIGHT
+		ldy #SpritePointers.SANTA_JUMP_RIGHT
 		jmp SetFrame
 	SantaJumpLeft:
-		ldx #$41			// Santa is rising (face on left)
-		ldy #$42
+		ldx #SpritePointers.SANTAS_JUMP_LEFT
+		ldy #SpritePointers.SANTA_JUMP_LEFT
 		jmp SetFrame
 
 	CheckLanding:
 		lda Orientation
 		cmp #$ff
 		beq SantaLandLeft
-		ldx #$3f			// Santa is landing (face on left)
-		ldy #$40
+		ldx #SpritePointers.SANTAS_LANDING_LEFT
+		ldy #SpritePointers.SANTA_LANDING_LEFT
 		jmp SetFrame
 	SantaLandLeft:
-		ldx #$43			// Santa is landing (face on right)
-		ldy #$44
+		ldx #SpritePointers.SANTAS_LANDING_RIGHT
+		ldy #SpritePointers.SANTA_LANDING_RIGHT
 		jmp SetFrame
 	NoJump:
 		lda SantaFrame
@@ -173,12 +197,12 @@ SwitchSantaFrame: {
 		lsr
 		cmp #$00
 		beq Frame1
-		ldx #$35
-		ldy #$36
+		ldx #SpritePointers.SANTAS_LEFT
+		ldy #SpritePointers.SANTA_LEFT
 		jmp CheckDirection
 	Frame1:
-		ldx #$37
-		ldy #$38
+		ldx #SpritePointers.SANTAS_RIGHT
+		ldy #SpritePointers.SANTA_RIGHT
 	CheckDirection:
 		lda Orientation
 		cmp #$ff
@@ -399,7 +423,7 @@ SwitchReindeerFrame: {
 		lsr
 		lsr
 		bcs CheckReindeerFrame
-		adc #$31
+		adc #SpritePointers.REINDEER_1
 		sta SCREEN_RAM + $03f8 + $01
 		sta SCREEN_RAM + $03f8 + $02
 		sta SCREEN_RAM + $03f8 + $03
@@ -444,7 +468,7 @@ ShouldThrowGift: {
 		lda VIC.SPRITE_0_Y
 		sta VIC.SPRITE_7_Y
 
-		lda #$45
+		lda #SpritePointers.GIFT
 		sta SCREEN_RAM + $03f8 + $07
 
 		lda VIC.SPRITE_ENABLE
@@ -523,7 +547,7 @@ MayGiftExplode: {
 		lsr
 		lsr
 		bcs CheckGiftExplodeFrame
-		adc #$47
+		adc #$4b
 		sta SCREEN_RAM + $03f8 + $07
 
 	CheckGiftExplodeFrame:
