@@ -7,6 +7,7 @@ GameIntro: {
 
 	NoFirePressed:
 		jsr AnimateMap
+		jsr AnimateMapStep2
 		jsr GetJoystickMove
 		lda FirePressed
 		beq NoFirePressed
@@ -17,45 +18,35 @@ GameIntro: {
 
 CharAnimationFrame:
 		.byte $00
+CharAnimationFrameStep2:
+		.byte $00
 
 AnimateMap: {
-	.label LEFT_SMOKE = SCREEN_RAM + $2a9
 	.label RIGHT_SMOKE = SCREEN_RAM + $314
-	.label STAR1 = SCREEN_RAM + $52
 	.label STAR2 = SCREEN_RAM + $61
 	.label STAR3 = SCREEN_RAM + $99
-	.label STAR4_R = SCREEN_RAM + $db
-	.label STAR5_R = SCREEN_RAM + $112
 	.label STAR6 = SCREEN_RAM + $16a
 
 		jsr WaitRoutine
 
 		ldx CharAnimationFrame
-		cpx #$0f
+		cpx #$06
 		bne CheckCharAnimationFrame
-		lda LEFT_SMOKE
+		lda RIGHT_SMOKE
 		cmp #$7e
 		beq AddChar
-		dec LEFT_SMOKE
 		dec RIGHT_SMOKE
-		dec STAR1
 		dec STAR2
 		dec STAR3
-		inc STAR4_R
-		inc STAR5_R
 		dec STAR6
 		jmp CheckCharAnimationFrame
 	AddChar:
-		inc LEFT_SMOKE
 		inc RIGHT_SMOKE
-		inc STAR1
 		inc STAR2
 		inc STAR3
-		dec STAR4_R
-		dec STAR5_R
 		inc STAR6
 	CheckCharAnimationFrame:
-		cpx #$0f
+		cpx #$06
 		beq ResetCharAnimationFrame
 		inc CharAnimationFrame
 		jmp SwitchCharAnimationFrameDone
@@ -66,6 +57,44 @@ AnimateMap: {
 
 		rts
 }
+
+AnimateMapStep2: {
+	.label LEFT_SMOKE = SCREEN_RAM + $2a9
+	.label STAR1 = SCREEN_RAM + $52
+	.label STAR4_R = SCREEN_RAM + $db
+	.label STAR5_R = SCREEN_RAM + $112
+
+		jsr WaitRoutine
+
+		ldx CharAnimationFrameStep2
+		cpx #$0a
+		bne CheckCharAnimationFrameStep2
+		lda LEFT_SMOKE
+		cmp #$7e
+		beq AddChar
+		dec LEFT_SMOKE
+		dec STAR1
+		inc STAR4_R
+		inc STAR5_R
+		jmp CheckCharAnimationFrameStep2
+	AddChar:
+		inc LEFT_SMOKE
+		inc STAR1
+		dec STAR4_R
+		dec STAR5_R
+	CheckCharAnimationFrameStep2:
+		cpx #$0a
+		beq ResetCharAnimationFrameStep2
+		inc CharAnimationFrameStep2
+		jmp SwitchCharAnimationFrameStep2Done
+	ResetCharAnimationFrameStep2:
+		lda #$00
+		sta CharAnimationFrameStep2
+	SwitchCharAnimationFrameStep2Done:
+
+		rts
+}
+
 
 InitIntro: {
 		lda #$00
