@@ -2,14 +2,6 @@
 
 BasicUpstart2(Entry)
 
-#import "label.asm"
-#import "utils.asm"
-#import "scrolling.asm"
-#import "sprites.asm"
-#import "screen.asm"
-#import "sound.asm"
-#import "intro.asm"
-
 Entry:
 		sei
 		lda #$7f
@@ -48,6 +40,8 @@ Entry:
 									// Bitmap mode on
 									// Extended background mode on
 
+		jsr GameIntro				// Show game intro (until fire pressed)
+
 		lda #$01
 		sta VIC.INTERRUPT_CTRL		// Raster interrupt enabled
 									// Sprite-background collision interrupt disabled
@@ -59,7 +53,6 @@ Entry:
 		jsr InitSound
 
 // End setup region, start game
-		jsr GameIntro				// Show game intro (until fire pressed)
 
 		jsr InitScreen
 		jsr SetupSprites
@@ -99,44 +92,13 @@ Entry:
 
 		jmp !Loop-
 
-GetJoystickMove: {
-		ldx #$00
-		lda $dc00
-		lsr
-		bcs !NoUp+
-		ldx #$ff
-	!NoUp:
-		lsr
-		bcs !NoDown+
-	!NoDown:
-		stx DirectionY
-		ldx #$00
-		lsr
-		bcs !NoLeft+
-		ldx #$ff
-		stx Orientation
-	!NoLeft:
-		lsr
-		bcs !NoRight+
-		ldx #$01
-		stx Orientation
-	!NoRight:
-		stx Direction
-		ldx #$00
-		lsr
-		bcs !NoFirePressed+
-		ldx #$ff
-	!NoFirePressed:
-		stx FirePressed
-		rts
-}
-
 FrameFlag:
 	.byte $00
 
+/*
 SpritePositions:
 	.byte $80,$00 	//LSB/MSB
-
+*/
 MapPositionBottom:
 	.byte $07, $00 	//Frac/Full
 MapPositionLandscape:
@@ -144,9 +106,10 @@ MapPositionLandscape:
 
 MapSpeed:
 	.byte $01,$01
+/*
 SpriteSpeed:
 	.byte $04
-
+*/
 Orientation:		// Actual Santa orientation
 	.byte $01 		// $01 - right, $ff - left
 Direction:			// Actual game direction
@@ -184,9 +147,10 @@ ScrollSprites: {
 		rts
 }
 		*/
-
+/*
 ScrollTimer:
 	.byte $00
+	*/
 ScrollChars: {
 	/*
 		inc ScrollTimer
@@ -532,7 +496,6 @@ ShiftMap: {
 		rts
 }
 
-
 ShiftMapLandscape: {
 		txa
 		clc
@@ -582,7 +545,7 @@ COLOR_MAP:
 * = $7fff
 	.byte $00
 
-*=$a000
+* = $a000 "ShiftMapBack"
 ShiftMapBack: {
 		.for(var i=10; i< 25; i++) {
 			.for(var j=37; j>=0; j--) {
@@ -600,3 +563,12 @@ ShiftMapBack: {
 		}
 		rts
 }
+
+#import "label.asm"
+#import "utils.asm"
+#import "scrolling.asm"
+#import "sprites.asm"
+#import "screen.asm"
+#import "sound.asm"
+#import "joystick.asm"
+#import "intro.asm"

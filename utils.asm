@@ -13,3 +13,13 @@ GetRandomNumber: {
         sta RandomNumber
         rts
 }
+
+WaitRoutine: {
+	VBLANKWAITLOW:
+        lda $d011
+        bpl VBLANKWAITLOW
+	VBLANKWAITHIGH:
+        lda $d011
+        bmi VBLANKWAITHIGH
+        rts
+}
