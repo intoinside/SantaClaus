@@ -1,8 +1,8 @@
 
 MaxNumberGenerator:
-	.byte $00
+    .byte $00
 RandomNumber:
-	.byte $00
+    .byte $00
 
 GetRandomNumber: {
         lda $d012
@@ -15,10 +15,10 @@ GetRandomNumber: {
 }
 
 WaitRoutine: {
-	VBLANKWAITLOW:
+    VBLANKWAITLOW:
         lda $d011
         bpl VBLANKWAITLOW
-	VBLANKWAITHIGH:
+    VBLANKWAITHIGH:
         lda $d011
         bmi VBLANKWAITHIGH
         rts
