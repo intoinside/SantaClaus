@@ -18,9 +18,14 @@ ClearScreen: {
 		sta SCREEN_RAM, x
 		sta SCREEN_RAM + $100, x
 		sta SCREEN_RAM + $200, x
+		dex
+		bne !-
+		ldx #$f7
+	!:
 		sta SCREEN_RAM + $300, x
 		dex
 		bne !-
+
 		rts
 }
 
