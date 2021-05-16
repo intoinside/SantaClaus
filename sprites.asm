@@ -19,28 +19,26 @@ Santa: {
 	.label MAX_JUMP 	= $24
 }
 SpritePointers: {
-	.label ELF			= $34
-	.label REINDEER_1	= $35
-	.label REINDEER_2	= $36
-	.label REINDEER_3	= $37
-	.label REINDEER_4	= $38
-	.label SANTA_LEFT		= $3a
-	.label SANTAS_LEFT		= $39
-	.label SANTA_RIGHT		= $3c
-	.label SANTAS_RIGHT	= $3b
-	.label SANTA_LANDING_RIGHT	= $48
-	.label SANTAS_LANDING_RIGHT	= $47
-	.label SANTA_JUMP_LEFT		= $46
-	.label SANTAS_JUMP_LEFT		= $45
-	.label SANTA_LANDING_LEFT	= $44
-	.label SANTAS_LANDING_LEFT	= $43
-	.label SANTA_JUMP_RIGHT		= $42
-	.label SANTAS_JUMP_RIGHT	= $41
+	.label ELF			= $40
+	.label REINDEER_1	= $41
+	.label REINDEER_2	= $42
+	.label REINDEER_3	= $43
+	.label REINDEER_4	= $44
+	.label SANTA_LEFT		= $46
+	.label SANTAS_LEFT		= $45
+	.label SANTA_RIGHT		= $48
+	.label SANTAS_RIGHT	= $47
+	.label SANTA_LANDING_RIGHT	= $54
+	.label SANTAS_LANDING_RIGHT	= $53
+	.label SANTA_JUMP_LEFT		= $52
+	.label SANTAS_JUMP_LEFT		= $51
+	.label SANTA_LANDING_LEFT	= $50
+	.label SANTAS_LANDING_LEFT	= $4f
+	.label SANTA_JUMP_RIGHT		= $4e
+	.label SANTAS_JUMP_RIGHT	= $4d
 
-
-
-	.label GIFT			= $49
-
+	.label GIFT			= $55
+	.label GIFT_EXPLSION_1		= $57
 }
 
 SetupSprites: {
@@ -547,7 +545,7 @@ MayGiftExplode: {
 		lsr
 		lsr
 		bcs CheckGiftExplodeFrame
-		adc #$4b
+		adc #SpritePointers.GIFT_EXPLSION_1
 		sta SCREEN_RAM + $03f8 + $07
 
 	CheckGiftExplodeFrame:

@@ -1,4 +1,8 @@
 .label ZP_TEMP = $02
+.label ZeroPage1 = $fb
+.label ZeroPage2 = $fc
+.label ZeroPage3 = $fd
+.label ZeroPage4 = $fe
 
 BasicUpstart2(Entry)
 
@@ -13,7 +17,7 @@ Entry:
 									// I/O area visible at $D000-$DFFF
 
 		lda #%00000010
-		sta VIC.BANK				// Select Vic bank 0
+		sta VIC.BANK				// Select Vic Bank #1, $4000-$7FFF
 
 		lda #%00000010
 		sta VIC.MEMORY_CONTROL		// Pointer to char memory $0800-$0FFF
@@ -56,6 +60,8 @@ Entry:
 
 		jsr InitScreen
 		jsr SetupSprites
+
+		jsr ClearScreen
 
 		ldx #$00
 		jsr DrawMapFull2
@@ -529,17 +535,17 @@ ShiftMapLandscapeBack: {
 * = $8000 "Map"
 CHAR_MAP:
 	.import binary "./assets/map.bin"
+* = * "ColorMap"
 COLOR_MAP:
 	.import binary "./assets/cols.bin"
 
-//VIC BANK
-//$c000-MEMORY.INT_SERVICE_HIGH
-//screen at $c000
-//char set at $c800
+// Bank #1, $4000-$7FFF
+// Screen at $4000
+// CharSet at $4800
 .label SCREEN_RAM = $4000
 * = $4800 "Charset"
 	.import binary "./assets/chars.bin"
-* = $4d00 "Sprites"
+* = $5000 "Sprites"
 	.import binary "./assets/sprites.bin"
 
 * = $7fff
