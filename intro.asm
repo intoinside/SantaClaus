@@ -24,7 +24,7 @@ AnimateAllSnowFlakes: {
         .for(var i = 0; i < 10; i++) {
             ldx SnowFlakesX + i
             ldy SnowFlakesY + i
-            jsr AnimateSnowFlakes
+            jsr AnimateSnowFlake
             sty SnowFlakesY + i
         }
 
@@ -35,18 +35,18 @@ AnimateAllSnowFlakes: {
 SnowFlakesX:
     .byte $04, $07, $0a, $0e, $12, $17, $1b, $1e, $22, $25
 SnowFlakesY:
-    .byte $0a, $03, $0c, $01, $08, $01, $0b, $14, $00, $0a
-SnowFlakesXPtr:
+    .byte $0a, $05, $0c, $01, $08, $15, $0b, $12, $00, $0b
+SnowFlakeXPtr:
     .byte $00
-SnowFlakesYPtr:
+SnowFlakeYPtr:
     .byte $00
 
-AnimateSnowFlakes: {
+AnimateSnowFlake: {
     .label SNOW_FLAKE_CHAR  = $a0
     .label SNOW_FLAKE_COLOR = $0b
 
-        stx SnowFlakesXPtr
-        sty SnowFlakesYPtr
+        stx SnowFlakeXPtr
+        sty SnowFlakeYPtr
 
     UpdateSnowFlakes:
         ldx CharAnimationFrame
@@ -54,14 +54,14 @@ AnimateSnowFlakes: {
         bne End
 
         // Remove snow flake position from old position
-        lda SnowFlakesYPtr          // load y position as index into list
+        lda SnowFlakeYPtr          // load y position as index into list
         asl                         // X2 as table is in words
         tay                         // Copy A to Y
         lda wScreenRAMRowStart, y   // load low address byte
         sta ZeroPage1
         lda wScreenRAMRowStart + 1, y   // load high address byte
         sta ZeroPage2
-        ldy SnowFlakesXPtr          // load x position into y register
+        ldy SnowFlakeXPtr          // load x position into y register
         lda (ZeroPage1), y
         cmp #SNOW_FLAKE_CHAR
         bne CheckNewPosition
@@ -69,17 +69,17 @@ AnimateSnowFlakes: {
         sta (ZeroPage1), y
 
     CheckNewPosition:
-        inc SnowFlakesYPtr
+        inc SnowFlakeYPtr
 
         // Check if new snow flake position is already used
-        lda SnowFlakesYPtr          // load y position as index into list
+        lda SnowFlakeYPtr          // load y position as index into list
         asl                         // X2 as table is in words
         tay                         // Copy A to Y
         lda wScreenRAMRowStart, y   // load low address byte
         sta ZeroPage1
         lda wScreenRAMRowStart + 1, y   // load high address byte
         sta ZeroPage2
-        ldy SnowFlakesXPtr          // load x position into Y register
+        ldy SnowFlakeXPtr          // load x position into Y register
         lda (ZeroPage1), y
         bne CheckYReset             // New snow flake position already used
 
@@ -88,26 +88,26 @@ AnimateSnowFlakes: {
         sta (ZeroPage1), y
 
         // Set color for new position
-        lda SnowFlakesYPtr          // load y position as index into list
+        lda SnowFlakeYPtr          // load y position as index into list
         asl                         // X2 as table is in words
         tay                         // Copy A to Y
         lda wColorRAMRowStart, y    // load low address byte
         sta ZeroPage1
         lda wColorRAMRowStart+1, y  // load high address byte
         sta ZeroPage2
-        ldy SnowFlakesXPtr          // load x position into Y register
+        ldy SnowFlakeXPtr          // load x position into Y register
         lda #SNOW_FLAKE_COLOR
         sta (ZeroPage1), y
 
     CheckYReset:
-        ldy SnowFlakesYPtr
+        ldy SnowFlakeYPtr
         cpy #$18
         beq ResetYCounter
         jmp End
 
     ResetYCounter:                  // Snow flake on the floor, restart
         ldy #$00
-        sty SnowFlakesYPtr
+        sty SnowFlakeYPtr
 
     End:
         rts
