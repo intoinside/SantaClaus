@@ -21,7 +21,7 @@ GameIntro: {
 }
 
 AnimateAllSnowFlakes: {
-        .for(var i = 0; i < 8; i++) {
+        .for(var i = 0; i < 10; i++) {
             ldx SnowFlakesX + i
             ldy SnowFlakesY + i
             jsr AnimateSnowFlakes
@@ -33,9 +33,9 @@ AnimateAllSnowFlakes: {
 
 // Snowflakes start x/y position
 SnowFlakesX:
-    .byte $04, $07, $0c, $12, $17, $1e, $22, $25
+    .byte $04, $07, $0a, $0e, $12, $17, $1b, $1e, $22, $25
 SnowFlakesY:
-    .byte $0a, $0f, $04, $08, $01, $12, $05, $0a
+    .byte $0a, $03, $0c, $01, $08, $01, $0b, $14, $00, $0a
 SnowFlakesXPtr:
     .byte $00
 SnowFlakesYPtr:
