@@ -29,7 +29,8 @@ VIC: {
 
 	.label SPRITE_EXTRAX		= $d010
 
-	.label COLLISION_REGISTRY   = $d01f
+	.label SPRITE_COLLISION		= $d01e
+	.label BACKGROUND_COLLISION = $d01f
 
 	.label RASTER_LINE			= $d012
 

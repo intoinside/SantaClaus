@@ -18,6 +18,7 @@ Santa: {
     .label Y            = $dd
     .label MAX_JUMP     = $24
 }
+
 SpritePointers: {
     .label ELF          = $40
     .label REINDEER_1   = $41
@@ -38,7 +39,30 @@ SpritePointers: {
     .label SANTAS_JUMP_RIGHT    = $4d
 
     .label GIFT         = $55
-    .label GIFT_EXPLSION_1      = $57
+    .label GIFT_EXPLOSION_1     = $57
+}
+
+* = * "DetectGiftCollision"
+DetectGiftCollision: {
+        lda GiftThrown              // Check if there is a gift
+        beq NoCollision
+        lda VIC.SPRITE_COLLISION
+        and #%10000000              // Check if gift had a collision
+        beq NoCollision
+        lda VIC.SPRITE_7_Y
+        sbc VIC.SPRITE_0_Y
+        cmp #$10
+        bcc NoCollision             // Check if gift is far from elf and reindeer
+        lda GiftShouldExplode       // Santa is colliding to gift
+        beq SantaSavedGift          // Check if gift is exploding
+                                    // Gift is exploding
+
+
+    SantaSavedGift:                 // Gift is not exploding, gift saved
+        jsr ResetGiftExplodeFrame
+
+    NoCollision:
+        rts
 }
 
 SetupSprites: {
@@ -545,30 +569,27 @@ MayGiftExplode: {
         lsr
         lsr
         bcs CheckGiftExplodeFrame
-        adc #SpritePointers.GIFT_EXPLSION_1
+        adc #SpritePointers.GIFT_EXPLOSION_1
         sta SCREEN_RAM + $03f8 + $07
 
     CheckGiftExplodeFrame:
         lda GiftThrownFrame
         cmp #$1f
-        beq ResetGiftExplodeFrame
-        inc GiftThrownFrame
+        bne IncrementGiftExplodeFrame
+        jsr ResetGiftExplodeFrame
         jmp Done
-    ResetGiftExplodeFrame:
-        lda #$00
-        sta GiftThrown
-        sta GiftThrownFrame
-        sta GiftShouldExplode
-        lda VIC.SPRITE_ENABLE
-        and #%01111111
-        sta VIC.SPRITE_ENABLE
+
+    IncrementGiftExplodeFrame:
+        inc GiftThrownFrame
     Done:
         rts
 }
 
-REMOVEGIFT: {
+ResetGiftExplodeFrame: {
         lda #$00
         sta GiftThrown
+        sta GiftThrownFrame
+        sta GiftShouldExplode
         lda VIC.SPRITE_ENABLE
         and #%01111111
         sta VIC.SPRITE_ENABLE

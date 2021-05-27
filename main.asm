@@ -46,7 +46,7 @@ Entry:
 
         jsr GameIntro               // Show game intro (until fire pressed)
 
-        lda #$01
+        lda #%00000001
         sta VIC.INTERRUPT_CTRL      // Raster interrupt enabled
                                     // Sprite-background collision interrupt disabled
                                     // Sprite-sprite collision interrupt disabled
@@ -95,6 +95,7 @@ Entry:
         jsr MayGiftExplode
         jsr MoveSleigh
         jsr ScrollChars
+        jsr DetectGiftCollision
 
         jmp !Loop-
 
@@ -213,7 +214,7 @@ Split01: {
 //      sta VIC.BACKGROUND_COLOR            // BACKGROUND COLOR
 
 /*
-        //Remove borders
+        // Remove borders
         lda VIC.SCREEN_CONTROL1         // Screen control register #1
         and #%11110111
         sta VIC.SCREEN_CONTROL1         // Screen control register #1
@@ -289,7 +290,6 @@ Split01: {
 }
 
 Split01a: {
-
         sta ModA + 1
         stx ModX + 1
         sty ModY + 1
@@ -303,15 +303,15 @@ Split01a: {
 
         //landscape
         lda #%0010000
-        sta VIC.SCREEN_CONTROL2             // Screen control register #2
+        sta VIC.SCREEN_CONTROL2         // Screen control register #2
 
 
         lda #<Split02
         sta MEMORY.INT_SERVICE_LOW
         lda #>Split02
         sta MEMORY.INT_SERVICE_HIGH
-        lda #$4a
-        sta VIC.RASTER_LINE             // Raster line
+        lda #$4a                        // Raster line $4a - 74
+        sta VIC.RASTER_LINE
     ModA:
         lda #$00
     ModX:
@@ -327,8 +327,7 @@ Split02: {
         stx ModX + 1
         sty ModY + 1
 
-        //landscape
-
+        // Landscape
         lda MapPositionLandscape + 0
         ora #%00010000
         sta VIC.SCREEN_CONTROL2
@@ -337,7 +336,7 @@ Split02: {
         sta MEMORY.INT_SERVICE_LOW
         lda #>Split03
         sta MEMORY.INT_SERVICE_HIGH
-        lda #$81
+        lda #$81                        // Raster line $81 - 129
         sta VIC.RASTER_LINE
     ModA:
         lda #$00
@@ -354,8 +353,8 @@ Split03: {
         stx ModX + 1
         sty ModY + 1
 
-        //Foreground
-            //waste some cycles to stabilise the line
+        // Foreground
+        // waste some cycles to stabilize the line
         nop
         nop
         nop
@@ -367,7 +366,6 @@ Split03: {
         nop
         nop
         nop
-
 
         lda MapPositionBottom + 0
         ora #%00010000
@@ -391,7 +389,6 @@ Split03: {
 }
 
 Split03aa: {
-
         sta ModA + 1
         stx ModX + 1
         sty ModY + 1

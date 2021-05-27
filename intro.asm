@@ -2,6 +2,7 @@
 GameIntro: {
         jsr InitIntro
         jsr DrawIntroMap
+        jsr SetupIntroSprites
 
         cli
 
@@ -17,6 +18,47 @@ GameIntro: {
         beq NoFirePressed
 
         sei
+        rts
+}
+
+SetupIntroSprites: {
+        lda #SpritePointers.SANTA_RIGHT
+        sta SCREEN_RAM + $03f8 + $00
+        lda #SpritePointers.SANTAS_RIGHT
+        sta SCREEN_RAM + $03f8 + $01
+        lda #SpritePointers.GIFT
+        sta SCREEN_RAM + $03f8 + $02
+
+        lda #%00000111
+        sta VIC.SPRITE_MULTICOLOR
+
+        lda #$00
+        sta $d027           // Santa Sprite
+        lda #$01
+        sta $d028           // Santa shadow Sprite
+        sta $d029           // Gift Sprite
+
+        lda #$02
+        sta VIC.SPRITE_EXTRACOLOR1
+        lda #$08
+        sta VIC.SPRITE_EXTRACOLOR2
+
+        lda #%00000111
+        sta VIC.SPRITE_ENABLE
+
+// Y Positioning
+        lda #Santa.Y
+        sta VIC.SPRITE_0_Y
+        sta VIC.SPRITE_1_Y
+        sta VIC.SPRITE_2_Y
+
+// X Positioning
+        lda #$5a                // Reindeer 2 X position
+        sta VIC.SPRITE_0_X
+        sta VIC.SPRITE_1_X
+        lda #$c0                // Reindeer 4 X position
+        sta VIC.SPRITE_2_X
+
         rts
 }
 
@@ -236,6 +278,6 @@ DrawIntroMap: {
         rts
 }
 
-* = $c300 "IntroMap"
+* = $c400 "IntroMap"
 CHAR_INTRO_MAP:
     .import binary "./assets/intro-map.bin"
