@@ -554,9 +554,12 @@ MayGiftExtraXBitSet: {
 }
 
 SetGiftToExplode: {
+        lda GiftThrown              // If no gift is thrown (maybe it's already
+        beq Done                    // been saved), no explosion sound should happen
         jsr PlayGiftExplosion
         lda #$01
         sta GiftShouldExplode
+    Done:
         rts
 }
 
