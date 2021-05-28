@@ -11,6 +11,35 @@ InitScreen: {
         sta VIC.EXTRA_BACKGROUND2       // Extra background color #2
 }
 
+UpdateScore: {
+        ldy #10
+        dey
+    UpdateScoreImpl:
+        inc SCREEN_RAM + $0c
+        lda SCREEN_RAM + $0c
+        cmp #$59                // >9? (the #0 in the charset is $30,up to $39 for the #9)
+        bne Done                // if not, stop
+        lda #$50                // else reset last digit to "0" ($30)
+        sta SCREEN_RAM + $0c
+        inc SCREEN_RAM + $0b    // increase left digit
+        lda SCREEN_RAM + $0b    // start again with the other digit
+        cmp #$59
+        bne Done
+        lda #$50
+        sta SCREEN_RAM + $0b
+        inc SCREEN_RAM + $0a
+        lda SCREEN_RAM + $0a
+        cmp #$59
+        bne Done
+        lda #$50
+        sta SCREEN_RAM + $0a
+        inc SCREEN_RAM + $09
+    Done:
+        dey
+        bne UpdateScoreImpl
+        rts
+}
+
 ClearScreen: {
         lda #$00
         ldx #$00

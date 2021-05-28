@@ -57,10 +57,10 @@ DetectGiftCollision: {
         beq SantaSavedGift          // Check if gift is exploding
                                     // Gift is exploding
 
-
+        jmp NoCollision
     SantaSavedGift:                 // Gift is not exploding, gift saved
         jsr ResetGiftExplodeFrame
-
+        jsr UpdateScore
     NoCollision:
         rts
 }
