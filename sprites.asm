@@ -559,6 +559,8 @@ SetGiftToExplode: {
         jsr PlayGiftExplosion
         lda #$01
         sta GiftShouldExplode
+        dec CurrentPower
+        jsr DrawCurrentPowerBar
     Done:
         rts
 }

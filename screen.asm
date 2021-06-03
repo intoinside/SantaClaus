@@ -1,4 +1,7 @@
 
+CurrentPower:
+    .byte $00
+
 InitScreen: {
         lda #$06
         sta VIC.BORDER_COLOR            // Border color
@@ -37,6 +40,23 @@ UpdateScore: {
     Done:
         dey
         bne UpdateScoreImpl
+        rts
+}
+
+DrawCurrentPowerBar: {
+        ldx #6
+    Loop:
+        txa
+        cmp CurrentPower
+        bcc IsZero
+        lda #121
+        jmp UpdateBarItem
+    IsZero:
+        lda #120
+    UpdateBarItem:
+        sta SCREEN_RAM + $1a, x
+        dex
+        bne Loop
         rts
 }
 
