@@ -12,6 +12,9 @@ InitScreen: {
         sta VIC.EXTRA_BACKGROUND1       // Extra background color #1
         lda #$01
         sta VIC.EXTRA_BACKGROUND2       // Extra background color #2
+
+        lda #$08
+        sta CurrentPower
 }
 
 UpdateScore: {
@@ -44,17 +47,16 @@ UpdateScore: {
 }
 
 DrawCurrentPowerBar: {
-        ldx #6
+        ldx #7
     Loop:
-        txa
-        cmp CurrentPower
-        bcc IsZero
-        lda #121
+        cpx CurrentPower
+        bcs IsZero
+        lda #$0f
         jmp UpdateBarItem
     IsZero:
-        lda #120
+        lda #$0a
     UpdateBarItem:
-        sta SCREEN_RAM + $1a, x
+        sta $d819, x                // Store to COLOUR RAM
         dex
         bne Loop
         rts
