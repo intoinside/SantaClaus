@@ -99,6 +99,9 @@ Entry:
 
         jmp !Loop-
 
+GameEnded:
+    .byte $00
+
 FrameFlag:
     .byte $00
 

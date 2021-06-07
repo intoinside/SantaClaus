@@ -278,6 +278,6 @@ DrawIntroMap: {
         rts
 }
 
-* = $c400 "IntroMap"
+* = $c500 "IntroMap"
 CHAR_INTRO_MAP:
     .import binary "./assets/intro-map.bin"

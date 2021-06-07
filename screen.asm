@@ -1,5 +1,5 @@
 
-CurrentPower:
+CurrentHappiness:
     .byte $00
 
 InitScreen: {
@@ -13,8 +13,8 @@ InitScreen: {
         lda #$01
         sta VIC.EXTRA_BACKGROUND2       // Extra background color #2
 
-        lda #$08
-        sta CurrentPower
+        lda #$06                        // Should be 8
+        sta CurrentHappiness
 }
 
 UpdateScore: {
@@ -46,25 +46,41 @@ UpdateScore: {
         rts
 }
 
-DrawCurrentPowerBar: {
-        ldx #7
+* = * "DrawCurrentHappinessBar"
+DrawCurrentHappinessBar: {
+        pha
+        txa
+        pha
+        ldx #5
     Loop:
-        cpx CurrentPower
-        bcs IsZero
-        lda #$0f
-        jmp UpdateBarItem
-    IsZero:
+        cpx CurrentHappiness
+        bcc IsNonZero
         lda #$0a
+        jmp UpdateBarItem
+    IsNonZero:
+        lda #$0f
     UpdateBarItem:
-        sta $d819, x                // Store to COLOUR RAM
+        sta $d81a, x                // Store to COLOUR RAM
         dex
         bne Loop
+        lda CurrentHappiness
+        beq NoMoreHappiness
+        jmp End
+
+    NoMoreHappiness:
+        lda #$0a
+        sta $d81a
+        inc GameEnded
+    End:
+        pla
+        tax
+        pla
         rts
 }
 
 ClearScreen: {
         lda #$00
-        ldx #$00
+        tax
     !:
         sta SCREEN_RAM, x
         sta SCREEN_RAM + $100, x

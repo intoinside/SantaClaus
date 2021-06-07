@@ -39,10 +39,12 @@ SpritePointers: {
     .label SANTAS_JUMP_RIGHT    = $4d
 
     .label GIFT         = $55
-    .label GIFT_EXPLOSION_1     = $57
+    .label GIFT_EXPLOSION_1     = $56
+
+    .label TEARS_1              = $5b
+    .label TEARS_2              = $5c
 }
 
-* = * "DetectGiftCollision"
 DetectGiftCollision: {
         lda GiftThrown              // Check if there is a gift
         beq NoCollision
@@ -112,7 +114,7 @@ SetupSprites: {
         sta VIC.SPRITE_3_Y
         sta VIC.SPRITE_4_Y
 
-        lda #Santa.Y            // Santa and santa shadow Y position
+        lda #Santa.Y            // Santa and Santa shadow Y position
         sta VIC.SPRITE_5_Y
         sta VIC.SPRITE_6_Y
 
@@ -131,6 +133,29 @@ SetupSprites: {
         lda #$60                // Santa and Santa shadow X position
         sta VIC.SPRITE_5_X
         sta VIC.SPRITE_6_X
+
+        rts
+}
+
+* = * "SetSantaLikeCrying"
+SetSantaLikeCrying: {
+        lda #SpritePointers.SANTA_RIGHT
+        sta SCREEN_RAM + $03f8 + $05
+        lda #SpritePointers.SANTAS_RIGHT
+        sta SCREEN_RAM + $03f8 + $06    // Reset Santa sprite
+        lda #SpritePointers.TEARS_1
+        sta SCREEN_RAM + $03f8 + $07    // Add tears sprite
+
+        lda VIC.SPRITE_5_X
+        sta VIC.SPRITE_7_X
+        lda VIC.SPRITE_5_Y
+        sta VIC.SPRITE_7_Y      // Set position as same as Santa
+
+        lda #$03
+        sta $d02e               // Set color for tears
+
+        lda #%11111111
+        sta VIC.SPRITE_ENABLE
 
         rts
 }
@@ -240,8 +265,8 @@ SwitchSantaFrame: {
         tay
         iny
     SetFrame:
-        stx SCREEN_RAM + $03f8 + $06    // 3byte, 4cyc
-        sty SCREEN_RAM + $03f8 + $05    // 3byte, 4cyc
+        stx SCREEN_RAM + $03f8 + $06
+        sty SCREEN_RAM + $03f8 + $05
     CheckSantaFrame:
         lda SantaFrame
         cmp #$0f
@@ -465,6 +490,8 @@ SwitchReindeerFrame: {
 }
 
 ShouldThrowGift: {
+        lda GameEnded
+        bne NoThrow                 // Game is ended, no throw
         lda VIC.SPRITE_0_X          // If sleigh is between $50 and $a0 px
         cmp #$90                    // then it can throw a gift
         bcc NoThrow
@@ -502,6 +529,8 @@ ShouldThrowGift: {
 }
 
 LetGiftFall: {
+        lda GameEnded
+        bne NoGiftNeedsToFall       // Game is ended, no throw
         lda GiftThrown
         beq NoGiftNeedsToFall       // There is no gift
         lda VIC.SPRITE_7_Y
@@ -559,8 +588,8 @@ SetGiftToExplode: {
         jsr PlayGiftExplosion
         lda #$01
         sta GiftShouldExplode
-        dec CurrentPower
-        jsr DrawCurrentPowerBar
+        dec CurrentHappiness
+        jsr DrawCurrentHappinessBar
     Done:
         rts
 }
@@ -582,6 +611,9 @@ MayGiftExplode: {
         cmp #$1f
         bne IncrementGiftExplodeFrame
         jsr ResetGiftExplodeFrame
+        lda GameEnded
+        beq Done
+        jsr SetSantaLikeCrying
         jmp Done
 
     IncrementGiftExplodeFrame:

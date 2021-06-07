@@ -2,9 +2,12 @@
 GetJoystickMove: {
 		ldx #$00
 		lda $dc00
+		ldy GameEnded
+		bne CheckOnlyFirePress
 		lsr
 		bcs !NoUp+
 		ldx #$ff
+
 	!NoUp:
 		lsr
 		bcs !NoDown+
@@ -23,6 +26,25 @@ GetJoystickMove: {
 	!NoRight:
 		stx Direction
 		ldx #$00
+		lsr
+		bcs !NoFirePressed+
+		ldx #$ff
+	!NoFirePressed:
+		stx FirePressed
+		rts
+
+	CheckOnlyFirePress:
+		jsr GetOnlyFirePress
+		rts
+}
+
+// A should contain joystick register read
+GetOnlyFirePress: {
+		ldx #$00
+		lsr
+		lsr
+		lsr
+		lsr
 		lsr
 		bcs !NoFirePressed+
 		ldx #$ff
