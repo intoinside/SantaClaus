@@ -13,7 +13,7 @@ InitScreen: {
         lda #$01
         sta VIC.EXTRA_BACKGROUND2       // Extra background color #2
 
-        lda #$06                        // Should be 8
+        lda #$06                        // Should be 6
         sta CurrentHappiness
 }
 

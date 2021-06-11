@@ -44,6 +44,10 @@ Entry:
                                     // Bitmap mode on
                                     // Extended background mode on
 
+// End setup region, start game
+        jsr GameMainLoop
+
+GameMainLoopInit: {
         jsr GameIntro               // Show game intro (until fire pressed)
 
         lda #%00000001
@@ -56,8 +60,6 @@ Entry:
 
         jsr InitSound
 
-// End setup region, start game
-
         jsr InitScreen
         jsr SetupSprites
 
@@ -67,7 +69,11 @@ Entry:
         jsr DrawMainMap
 
         cli
+        rts
+}
 
+GameMainLoop: {
+        jsr GameMainLoopInit
     !Loop:
         lda FrameFlag
         beq !Loop-
@@ -98,6 +104,7 @@ Entry:
         jsr DetectGiftCollision
 
         jmp !Loop-
+}
 
 GameEnded:
     .byte $00

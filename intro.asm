@@ -3,6 +3,7 @@ GameIntro: {
         jsr InitIntro
         jsr DrawIntroMap
         jsr SetupIntroSprites
+        jsr StupidWaitRoutine
 
         cli
 
@@ -84,7 +85,7 @@ SnowFlakeYPtr:
     .byte $00
 
 AnimateSnowFlake: {
-    .label SNOW_FLAKE_CHAR  = $a0
+    .label SNOW_FLAKE_CHAR  = $9e
     .label SNOW_FLAKE_COLOR = $0b
 
         stx SnowFlakeXPtr
@@ -170,7 +171,7 @@ AnimateMap: {
         cpx #$06
         bne CheckCharAnimationFrame
         lda RIGHT_SMOKE
-        cmp #$7e
+        cmp #$7c
         beq AddChar
         dec RIGHT_SMOKE
         dec STAR2
@@ -206,7 +207,7 @@ AnimateMapStep2: {
         cpx #$0a
         bne CheckCharAnimationFrameStep2
         lda LEFT_SMOKE
-        cmp #$7e
+        cmp #$7c
         beq AddChar
         dec LEFT_SMOKE
         dec STAR1
