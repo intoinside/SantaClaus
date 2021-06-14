@@ -140,6 +140,20 @@ SetupSprites: {
 }
 
 SetSantaLikeCrying: {
+        lda IsJumping
+        bne End                // When IsJumping = 0 => no jump in progress, check if should start a new jump
+        lda IsLanding
+        cmp #Santa.MAX_JUMP
+        bne End
+
+        lda #$00
+        sta Direction
+        sta IsJumping
+        lda #$01
+        sta Orientation
+        lda Santa.MAX_JUMP
+        sta IsLanding
+
         lda #SpritePointers.SANTA_RIGHT
         sta SCREEN_RAM + $03f8 + $06
         lda #SpritePointers.SANTAS_RIGHT
@@ -163,6 +177,7 @@ SetSantaLikeCrying: {
         sta VIC.SPRITE_ENABLE
 
         inc SantaIsCrying
+    End:
         rts
 }
 
@@ -237,6 +252,10 @@ ManageSantaJumpOrLand: {
         sta SantaFrame
         lda #Santa.MAX_JUMP
         sta IsLanding
+        lda GameEnded
+        beq UpdateFrame
+        jsr SetSantaLikeCrying
+        jmp Done
     UpdateFrame:
         jsr SwitchSantaFrame
     Done:
