@@ -25,7 +25,7 @@ WaitRoutine: {
 }
 
 StupidWaitRoutine: {
-        ldy #$ff
+        ldy #$bf
     LoopY:
         ldx #$ff
     LoopX:
