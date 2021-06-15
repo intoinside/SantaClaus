@@ -54,11 +54,14 @@ SetupIntroSprites: {
         sta VIC.SPRITE_2_Y
 
 // X Positioning
-        lda #$5a                // Reindeer 2 X position
+        lda #$5a                // Santa and Santa shadow position
         sta VIC.SPRITE_0_X
         sta VIC.SPRITE_1_X
-        lda #$c0                // Reindeer 4 X position
+        lda #$c0                // Gift position
         sta VIC.SPRITE_2_X
+
+        lda #$00                // Sprite extra-x bit set to 0
+        sta VIC.SPRITE_EXTRAX
 
         rts
 }
