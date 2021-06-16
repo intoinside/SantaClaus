@@ -148,6 +148,7 @@ SetSantaLikeCrying: {
 
         lda #$00
         sta Direction
+        sta DirectionY
         sta IsJumping
         lda #$01
         sta Orientation
