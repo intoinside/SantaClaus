@@ -45,7 +45,7 @@ Entry:
                                     // Extended background mode on
 
 // End setup region, start game
-        jsr GameMainLoop
+        jmp GameMainLoop
 
 GameMainLoopInit: {
         jsr GameIntro               // Show game intro (until fire pressed)

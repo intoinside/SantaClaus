@@ -152,7 +152,7 @@ SetSantaLikeCrying: {
         sta IsJumping
         lda #$01
         sta Orientation
-        lda Santa.MAX_JUMP
+        lda #Santa.MAX_JUMP
         sta IsLanding
 
         lda #SpritePointers.SANTA_RIGHT
@@ -205,8 +205,7 @@ RestartGame: {
         sta FirePressed
         sta GameEnded
         sta SantaIsCrying
-        jsr GameMainLoopInit
-        rts
+        jmp GameMainLoop
 }
 
 StartSantaJumpOrLand: {
